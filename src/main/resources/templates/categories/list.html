@@ -11,6 +11,11 @@
     <form method="post" th:action="@{/categories/{id}/delete(id=${category.id})}" style="display:inline;">
       <button type="submit" name="btn_delete">Delete</button>
     </form>
+    
+    <ul th:if="${!category.books.isEmpty()}">
+      <li th:each="book : ${category.books}" th:text="${book.title}">Book</li>
+    </ul>
+    
   </li>
 </ul>
 </body>
