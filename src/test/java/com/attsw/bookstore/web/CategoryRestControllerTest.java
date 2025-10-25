@@ -91,7 +91,7 @@ class CategoryRestControllerTest {
     void shouldDeleteCategory() {
         doNothing().when(categoryService).deleteCategory(1L);
 
-        controller.delete(1L);
+        controller.deleteCategory(1L);
 
         verify(categoryService).deleteCategory(1L);
     }

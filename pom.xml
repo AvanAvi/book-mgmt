@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0 "
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance "
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd ">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -21,12 +21,23 @@
   <properties>
     <java.version>17</java.version>
     <sonar.organization>avanavi</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.host.url>https://sonarcloud.io </sonar.host.url>
     <sonar.projectKey>AvanAvi_book-mgmt</sonar.projectKey>
     <sonar.coverage.exclusions>
-        **/BookstoreManagementTddApplication.*,
-        **/model/**
+      **/BookstoreManagementTddApplication.*,
+      **/model/**
     </sonar.coverage.exclusions>
+
+    <skip.unit-tests>false</skip.unit-tests>
+    <skip.integration-tests>false</skip.integration-tests>
+
+    <mysql.docker.version>5.7</mysql.docker.version>
+    <mysql.port>3307</mysql.port>
+    <mysql.database>bookstore_e2e</mysql.database>
+    <mysql.username>bookstore_user</mysql.username>
+    <mysql.password>bookstore_pass</mysql.password>
+    
+    <selenium.version>4.37.0</selenium.version>
   </properties>
 
   <dependencies>
@@ -89,20 +100,40 @@
       <artifactId>selenium-java</artifactId>
       <scope>test</scope>
     </dependency>
-
-  
-  <!-- RestAssured for REST API E2E Testing -->
-	<dependency>
-    	<groupId>io.rest-assured</groupId>
-    	<artifactId>rest-assured</artifactId>
-    	<scope>test</scope>
+    
+    <!-- Selenium CDP v141 for Chrome 141.x -->
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-devtools-v141</artifactId>
+      <scope>test</scope>
 	</dependency>
- </dependencies>
+    
+    <dependency>
+      <groupId>io.github.bonigarcia</groupId>
+      <artifactId>webdrivermanager</artifactId>
+      <version>5.6.2</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- AssertJ for fluent assertions -->
+	<dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+	</dependency>
+
+    <!-- RestAssured for REST API E2E Testing -->
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <pluginManagement>
       <plugins>
-        <!-- ========== PIT Mutation Testing ========== -->
+        <!-- PIT Mutation Testing -->
         <plugin>
           <groupId>org.pitest</groupId>
           <artifactId>pitest-maven</artifactId>
@@ -115,6 +146,8 @@
             <targetTests>
               <param>com.attsw.bookstore.service.*Test</param>
               <param>com.attsw.bookstore.web.*Test</param>
+              <param>com.attsw.bookstore.integration.rest.*WebMvcTest</param>
+      		  <param>com.attsw.bookstore.integration.web.*WebMvcTest</param>
             </targetTests>
             <excludedTestClasses>
               <param>**/*IT</param>
@@ -192,6 +225,7 @@
             <exclude>**/*IT.java</exclude>
             <exclude>**/*E2E.java</exclude>
           </excludes>
+          <forkedProcessExitTimeoutInSeconds>60</forkedProcessExitTimeoutInSeconds>
         </configuration>
       </plugin>
 
@@ -210,8 +244,10 @@
         <configuration>
           <includes>
             <include>**/*IT.java</include>
-            <include>**/*E2E.java</include>
           </includes>
+          <excludes>
+            <exclude>**/*E2E.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
 
@@ -241,8 +277,8 @@
           </execution>
         </executions>
       </plugin>
-     
-     <!-- Coveralls Maven Plugin -->
+
+      <!-- Coveralls Maven Plugin -->
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
@@ -261,53 +297,132 @@
 
       <!-- SonarCloud Maven Plugin -->
       <plugin>
-          <groupId>org.sonarsource.scanner.maven</groupId>
-          <artifactId>sonar-maven-plugin</artifactId>
-          <version>4.0.0.4121</version>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>4.0.0.4121</version>
       </plugin>
-
-
     </plugins>
   </build>
 
+  <!-- ===== PROFILES ===== -->
   <profiles>
-    <!-- Profile to run ONLY E2E tests -->
+    <!-- E2E-TESTS PROFILE -->
     <profile>
       <id>e2e-tests</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <skip.unit-tests>true</skip.unit-tests>
+        <skip.integration-tests>true</skip.integration-tests>
+        <e2e.server.port>9090</e2e.server.port>
+      </properties>
       <build>
         <plugins>
-          <!-- Skip unit tests -->
+          <!-- Start MySQL Docker Container -->
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>0.43.4</version>
+            <executions>
+              <execution>
+                <id>start-mysql</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mysql</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
             <configuration>
-              <skipTests>true</skipTests>
+              <images>
+                <image>
+                  <name>mysql:${mysql.docker.version}</name>
+                  <alias>mysql-e2e</alias>
+                  <run>
+                    <env>
+                      <MYSQL_ROOT_PASSWORD>root</MYSQL_ROOT_PASSWORD>
+                      <MYSQL_DATABASE>${mysql.database}</MYSQL_DATABASE>
+                      <MYSQL_USER>${mysql.username}</MYSQL_USER>
+                      <MYSQL_PASSWORD>${mysql.password}</MYSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>${mysql.port}:3306</port>
+                    </ports>
+                    <wait>
+                      <log>.*mysqld: ready for connections.*</log>
+                      <time>120000</time>
+                      <exec>
+                        <postStart>sleep 10</postStart>
+                      </exec>
+                    </wait>
+                  </run>
+                </image>
+              </images>
             </configuration>
           </plugin>
 
-          <!-- Run ONLY E2E tests with Failsafe -->
+          <!-- Start Spring Boot Application on Port 9090 -->
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>pre-integration-test</id>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <configuration>
+                  <wait>30000</wait>
+                  <maxAttempts>15</maxAttempts>
+                  <arguments>
+                    <argument>--server.port=${e2e.server.port}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>post-integration-test</id>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Run E2E Tests with Port 9090 -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
             <executions>
               <execution>
+                <id>e2e-tests</id>
                 <goals>
                   <goal>integration-test</goal>
                   <goal>verify</goal>
                 </goals>
+                <configuration>
+                  <includes>
+                    <include>**/*E2E.java</include>
+                  </includes>
+                  <excludes>
+                    <exclude>**/*IT.java</exclude>
+                  </excludes>
+                  <systemPropertyVariables>
+                    <server.port>${e2e.server.port}</server.port>
+                  </systemPropertyVariables>
+                </configuration>
               </execution>
             </executions>
-            <configuration>
-              <includes>
-                <include>**/*E2E.java</include>
-              </includes>
-            </configuration>
           </plugin>
         </plugins>
       </build>
     </profile>
-
-    <!-- ========== Mutation-Testing Profile ========== -->
     <profile>
       <id>mutation-testing</id>
       <activation>
@@ -346,6 +461,62 @@
                 <version>1.2.2</version>
               </dependency>
             </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- DOCKER PROFILE - For manual Docker control from Eclipse -->
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>0.43.4</version>
+            <executions>
+              <execution>
+                <id>start-mysql</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mysql</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <images>
+                <image>
+                  <name>mysql:${mysql.docker.version}</name>
+                  <alias>mysql-e2e</alias>
+                  <run>
+                    <env>
+                      <MYSQL_ROOT_PASSWORD>root</MYSQL_ROOT_PASSWORD>
+                      <MYSQL_DATABASE>${mysql.database}</MYSQL_DATABASE>
+                      <MYSQL_USER>${mysql.username}</MYSQL_USER>
+                      <MYSQL_PASSWORD>${mysql.password}</MYSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>${mysql.port}:3306</port>
+                    </ports>
+                    <wait>
+                      <log>.*mysqld: ready for connections.*</log>
+                      <time>120000</time>
+                      <exec>
+                        <postStart>sleep 10</postStart>
+                      </exec>
+                    </wait>
+                  </run>
+                </image>
+              </images>
+            </configuration>
           </plugin>
         </plugins>
       </build>

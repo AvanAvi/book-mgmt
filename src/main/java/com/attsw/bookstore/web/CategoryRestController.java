@@ -1,20 +1,18 @@
 package com.attsw.bookstore.web;
+import java.util.Map;       
+import java.util.HashMap;
 
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
 
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.service.CategoryService;
-import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -55,8 +53,13 @@ public class CategoryRestController {
     }
     
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {    
+        if (categoryService.hasBooks(id)) {
+            Map<String, String> body = new HashMap<>();
+            body.put("message", "Category cannot be deleted while books exist");
+            return ResponseEntity.badRequest().body(body);
     }
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+}
 }

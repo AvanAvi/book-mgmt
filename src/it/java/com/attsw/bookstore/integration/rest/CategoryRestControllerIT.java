@@ -1,89 +1,198 @@
 package com.attsw.bookstore.integration.rest;
 
-import com.attsw.bookstore.web.CategoryRestController;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import org.springframework.http.MediaType;
-import java.util.Arrays;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.model.Category;
-import com.attsw.bookstore.service.CategoryService;
+import com.attsw.bookstore.repository.BookRepository;
+import com.attsw.bookstore.repository.CategoryRepository;
 
-@WebMvcTest(CategoryRestController.class)
+import io.restassured.RestAssured;
+
+/**
+ * TRUE Integration Test for CategoryRestController with real MySQL 5.7 database.
+ */
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@Testcontainers
 class CategoryRestControllerIT {
 
-    @Autowired
-    private MockMvc mvc;
+	@Container
+	static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:5.7")
+			.withDatabaseName("test_bookstore")
+			.withUsername("test")
+			.withPassword("test");
 
-    @MockitoBean
-    private CategoryService categoryService;
+	@DynamicPropertySource
+	static void databaseProperties(DynamicPropertyRegistry registry) {
+		registry.add("spring.datasource.url", mysql::getJdbcUrl);
+		registry.add("spring.datasource.username", mysql::getUsername);
+		registry.add("spring.datasource.password", mysql::getPassword);
+		registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+	}
 
-    @Test
-    void shouldReturnJsonListOfCategories() throws Exception {
-        Category c = new Category();
-        c.setName("Fiction");
-        when(categoryService.getAllCategories()).thenReturn(Arrays.asList(c));
+	@LocalServerPort
+	private int port;
 
-        mvc.perform(get("/api/categories"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].name").value("Fiction"));
-    }
+	@Autowired
+	private CategoryRepository categoryRepository;
 
-    @Test
-    void shouldCreateCategoryViaPost() throws Exception {
-        Category saved = new Category();
-        saved.setId(1L);
-        saved.setName("Science");
+	@Autowired
+	private BookRepository bookRepository;
 
-        when(categoryService.saveCategory(org.mockito.ArgumentMatchers.any(Category.class))).thenReturn(saved);
+	@BeforeEach
+	void setup() {
+		RestAssured.port = port;
+		bookRepository.deleteAll();
+		categoryRepository.deleteAll();
+	}
 
-        mvc.perform(post("/api/categories")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"Science\"}"))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.name").value("Science"));
-    }
+	@Test
+	void testGetAllCategories_whenEmpty() {
+		given()
+			.accept(MediaType.APPLICATION_JSON_VALUE)
+		.when()
+			.get("/api/categories")
+		.then()
+			.statusCode(200)
+			.body("$", hasSize(0));
+	}
 
-    @Test
-    void shouldReturnSingleCategoryById() throws Exception {
-        Category saved = new Category();
-        saved.setId(1L);
-        saved.setName("History");
+	@Test
+	void testGetAllCategories_withCategories() {
+		Category cat1 = new Category();
+		cat1.setName("Fiction");
+		categoryRepository.save(cat1);
 
-        when(categoryService.getCategoryById(1L)).thenReturn(saved);
+		Category cat2 = new Category();
+		cat2.setName("Science");
+		categoryRepository.save(cat2);
 
-        mvc.perform(get("/api/categories/1"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("History"));
-    }
+		given()
+			.accept(MediaType.APPLICATION_JSON_VALUE)
+		.when()
+			.get("/api/categories")
+		.then()
+			.statusCode(200)
+			.body("$", hasSize(2))
+			.body("name", hasItems("Fiction", "Science"));
+	}
 
-    @Test
-    void shouldUpdateExistingCategoryViaPut() throws Exception {
-        Category updated = new Category();
-        updated.setId(1L);
-        updated.setName("Updated Name");
+	@Test
+	void testGetCategoryById_found() {
+		Category category = new Category();
+		category.setName("Fiction");
+		Category saved = categoryRepository.save(category);
 
-        when(categoryService.saveCategory(org.mockito.ArgumentMatchers.any(Category.class))).thenReturn(updated);
+		given()
+			.accept(MediaType.APPLICATION_JSON_VALUE)
+		.when()
+			.get("/api/categories/" + saved.getId())
+		.then()
+			.statusCode(200)
+			.body("id", equalTo(saved.getId().intValue()))
+			.body("name", equalTo("Fiction"));
+	}
 
-        mvc.perform(put("/api/categories/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"Updated Name\"}"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Updated Name"));
-    }
+	@Test
+	void testGetCategoryById_notFound() {
+		given()
+			.accept(MediaType.APPLICATION_JSON_VALUE)
+		.when()
+			.get("/api/categories/999")
+		.then()
+			.statusCode(404);
+	}
 
-    @Test
-    void shouldDeleteCategoryViaDelete() throws Exception {
-        mvc.perform(delete("/api/categories/1"))
-            .andExpect(status().isNoContent());
-    }
+	@Test
+	void testCreateCategory() {
+		String newCategoryJson = "{\"name\":\"New Category\"}";
+
+		Integer categoryId = given()
+			.contentType(MediaType.APPLICATION_JSON_VALUE)
+			.body(newCategoryJson)
+		.when()
+			.post("/api/categories")
+		.then()
+			.statusCode(201)
+			.body("name", equalTo("New Category"))
+			.extract().path("id");
+
+		Category dbCategory = categoryRepository.findById(categoryId.longValue()).orElse(null);
+		assertThat(dbCategory).isNotNull();
+		assertThat(dbCategory.getName()).isEqualTo("New Category");
+	}
+
+	@Test
+	void testUpdateCategory() {
+		Category category = new Category();
+		category.setName("Old Name");
+		category = categoryRepository.save(category);
+
+		String updateJson = "{\"name\":\"Updated Name\"}";
+
+		given()
+			.contentType(MediaType.APPLICATION_JSON_VALUE)
+			.body(updateJson)
+		.when()
+			.put("/api/categories/" + category.getId())
+		.then()
+			.statusCode(200)
+			.body("name", equalTo("Updated Name"));
+
+		Category dbCategory = categoryRepository.findById(category.getId()).orElse(null);
+		assertThat(dbCategory).isNotNull();
+		assertThat(dbCategory.getName()).isEqualTo("Updated Name");
+	}
+
+	@Test
+	void testDeleteCategory_success() {
+		Category category = new Category();
+		category.setName("To Delete");
+		category = categoryRepository.save(category);
+		Long categoryId = category.getId();
+
+		given()
+		.when()
+			.delete("/api/categories/" + categoryId)
+		.then()
+			.statusCode(204);
+
+		assertThat(categoryRepository.findById(categoryId)).isEmpty();
+	}
+
+	@Test
+	void testDeleteCategory_withBooks_shouldFail() {
+		Category category = new Category();
+		category.setName("Has Books");
+		category = categoryRepository.save(category);
+
+		Book book = new Book();
+		book.setTitle("Book");
+		book.setCategory(category);
+		bookRepository.save(book);
+
+		given()
+		.when()
+			.delete("/api/categories/" + category.getId())
+		.then()
+			.statusCode(400)
+			.body("message", containsString("cannot be deleted"));
+
+		assertThat(categoryRepository.findById(category.getId())).isPresent();
+	}
 }
