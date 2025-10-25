@@ -1,6 +1,7 @@
 package com.attsw.bookstore.model;
 
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -17,6 +18,7 @@ public class Book {
     private boolean available;
 
     @ManyToOne
+    @JsonIgnoreProperties("books")
     private Category category;
     
     

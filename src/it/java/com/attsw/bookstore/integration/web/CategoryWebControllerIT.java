@@ -1,128 +1,170 @@
 package com.attsw.bookstore.integration.web;
 
-import com.attsw.bookstore.web.CategoryWebController;
-import com.attsw.bookstore.service.CategoryService;
-import com.attsw.bookstore.service.BookService;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.util.Arrays;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import jakarta.persistence.EntityManager;
 
+import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.model.Category;
+import com.attsw.bookstore.repository.BookRepository;
+import com.attsw.bookstore.repository.CategoryRepository;
 
-@WebMvcTest(CategoryWebController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+@Testcontainers
+@Transactional
 class CategoryWebControllerIT {
 
-    @Autowired
-    private MockMvc mvc;
+    @Container
+    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:5.7");
 
-    @MockitoBean
-    private CategoryService categoryService;
+    @DynamicPropertySource
+    static void databaseProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", mysql::getJdbcUrl);
+        registry.add("spring.datasource.username", mysql::getUsername);
+        registry.add("spring.datasource.password", mysql::getPassword);
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+    }
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private BookRepository bookRepository;
     
-    @MockitoBean
-    private BookService bookService;
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
-    void shouldShowCategoryListPage() throws Exception {
-        Category c = new Category();
-        c.setName("Software");
-        when(categoryService.getAllCategories()).thenReturn(Arrays.asList(c));
+    void testGetAllCategories() throws Exception {
+        // Given
+        Category category = new Category();
+        category.setName("Test Category");
+        categoryRepository.save(category);
 
-        mvc.perform(get("/categories"))
+        // When/Then
+        mockMvc.perform(get("/categories"))
             .andExpect(status().isOk())
             .andExpect(view().name("categories/list"))
-            .andExpect(model().attributeExists("categories"));
+            .andExpect(model().attributeExists("categories"))
+            .andExpect(model().attribute("categories", 
+                org.hamcrest.Matchers.hasSize(1)));
     }
 
     @Test
-    void shouldShowAddCategoryForm() throws Exception {
-        mvc.perform(get("/categories/new"))
+    void testShowNewCategoryForm() throws Exception {
+        mockMvc.perform(get("/categories/new"))
             .andExpect(status().isOk())
             .andExpect(view().name("categories/new"))
             .andExpect(model().attributeExists("category"));
     }
 
     @Test
-    void shouldSaveCategoryAndRedirectToList() throws Exception {
-        Category saved = new Category();
-        saved.setId(1L);
-        saved.setName("Fiction");
-
-        when(categoryService.saveCategory(org.mockito.ArgumentMatchers.any(Category.class))).thenReturn(saved);
-
-        mvc.perform(post("/categories")
-                .param("name", "Fiction"))
+    void testCreateCategory() throws Exception {
+        mockMvc.perform(post("/categories")
+                .param("name", "New Category"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/categories"));
+
+        // Verify
+        assertThat(categoryRepository.findAll()).hasSize(1);
+        assertThat(categoryRepository.findAll().get(0).getName()).isEqualTo("New Category");
     }
 
     @Test
-    void shouldShowEditCategoryForm() throws Exception {
-        Category existing = new Category();
-        existing.setId(1L);
-        existing.setName("Science");
+    void testShowEditCategoryForm() throws Exception {
+        // Given
+        Category category = new Category();
+        category.setName("Edit Test");
+        category = categoryRepository.save(category);
 
-        when(categoryService.getCategoryById(1L)).thenReturn(existing);
-
-        mvc.perform(get("/categories/1/edit"))
+        // When/Then
+        mockMvc.perform(get("/categories/" + category.getId() + "/edit"))
             .andExpect(status().isOk())
             .andExpect(view().name("categories/edit"))
             .andExpect(model().attributeExists("category"));
     }
 
     @Test
-    void shouldUpdateCategoryAndRedirectToList() throws Exception {
-        Category updated = new Category();
-        updated.setId(1L);
-        updated.setName("Updated Name");
+    void testUpdateCategory() throws Exception {
+        // Given
+        Category category = new Category();
+        category.setName("Original Name");
+        category = categoryRepository.save(category);
 
-        when(categoryService.saveCategory(org.mockito.ArgumentMatchers.any(Category.class))).thenReturn(updated);
-
-        mvc.perform(post("/categories/1")
+        // When/Then
+        mockMvc.perform(post("/categories/" + category.getId())
                 .param("name", "Updated Name"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/categories"));
+
+        // Verify
+        Category updated = categoryRepository.findById(category.getId()).orElseThrow();
+        assertThat(updated.getName()).isEqualTo("Updated Name");
     }
 
     @Test
-    void shouldDeleteCategoryAndRedirectToList() throws Exception {
-        when(categoryService.hasBooks(1L)).thenReturn(false);
-        
-        mvc.perform(post("/categories/1/delete"))
+    void testDeleteCategoryWithoutBooks() throws Exception {
+        // Given
+        Category category = new Category();
+        category.setName("Delete Me");
+        category = categoryRepository.save(category);
+        Long categoryId = category.getId();
+
+        // When/Then
+        mockMvc.perform(post("/categories/" + categoryId + "/delete"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/categories"));
 
-        verify(categoryService).hasBooks(1L);
-        verify(categoryService).deleteCategory(1L);
+        // Verify
+        assertThat(categoryRepository.findById(categoryId)).isEmpty();
     }
-    
+
     @Test
-    void shouldNotDeleteCategoryWhenItHasBooksAndShowError() throws Exception {
+    void testDeleteCategoryWithBooks_shouldFail() throws Exception {
+        // Given
         Category category = new Category();
-        category.setId(1L);
-        category.setName("Fiction");
+        category.setName("Has Books");
+        category = categoryRepository.save(category);
+
+        Book book = new Book();
+        book.setTitle("Book in Category");
+        book.setAuthor("Test Author");
+        book.setCategory(category);
+        bookRepository.save(book);
         
-        when(categoryService.hasBooks(1L)).thenReturn(true);
-        when(categoryService.getCategoryById(1L)).thenReturn(category);
-        
-        mvc.perform(post("/categories/1/delete"))
+        // Clear persistence context to ensure fresh data fetch
+        entityManager.flush();
+        entityManager.clear();
+
+        // When/Then
+        mockMvc.perform(post("/categories/" + category.getId() + "/delete"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/categories"))
             .andExpect(flash().attributeExists("error"));
 
-        verify(categoryService).hasBooks(1L);
-        verify(categoryService).getCategoryById(1L);
-        verify(categoryService, never()).deleteCategory(1L);
+        // Verify category still exists
+        assertThat(categoryRepository.findById(category.getId())).isPresent();
     }
 }

@@ -1,171 +1,145 @@
 package com.attsw.bookstore.e2e;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-class CategoryRestControllerE2E {
+/**
+ * End-to-End test for CategoryRestController.
+ * Assumes Spring Boot application is ALREADY RUNNING.
+ */
+class CategoryRestControllerE2E { // NOSONAR
 
-	@Container
-	static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:5.7")
-			.withDatabaseName("testdb")
-			.withUsername("test")
-			.withPassword("test");
-
-	@DynamicPropertySource
-	static void properties(DynamicPropertyRegistry registry) {
-		registry.add("spring.datasource.url", mysql::getJdbcUrl);
-		registry.add("spring.datasource.username", mysql::getUsername);
-		registry.add("spring.datasource.password", mysql::getPassword);
-	}
-
-	@LocalServerPort
-	private int port;
+	private static int port = Integer.parseInt(System.getProperty("server.port", "9090"));
 
 	@BeforeEach
 	void setup() {
 		RestAssured.port = port;
+		RestAssured.baseURI = "http://localhost";
 	}
 
 	@Test
-	void test_CreateNewCategory_ShouldReturnCreatedCategory() {
-		String newCategoryJson = """
-			{
-				"name": "Science Fiction"
-			}
-			""";
-
+	void testGetAllCategories() {
 		given()
 			.contentType(ContentType.JSON)
-			.body(newCategoryJson)
 		.when()
-			.post("/api/categories")
+			.get("/api/categories")
 		.then()
-			.statusCode(201)
-			.body("id", notNullValue())
-			.body("name", equalTo("Science Fiction"));
+			.statusCode(200)
+			.body("$", isA(java.util.List.class));
 	}
-	
-	@Test
-	void test_GetCategoryById_ShouldReturnExistingCategory() {
-		// ARRANGE: Create a category first
-		String newCategoryJson = """
-			{
-				"name": "Programming"
-			}
-			""";
 
-		// ACT: Create category and extract its ID
+	@Test
+	void testCreateAndRetrieveCategory() {
+		// Create category
 		Integer categoryId = given()
 			.contentType(ContentType.JSON)
-			.body(newCategoryJson)
+			.body("{\"name\":\"E2E Category Test\"}")
 		.when()
 			.post("/api/categories")
 		.then()
 			.statusCode(201)
-			.extract()
-			.path("id");
+			.body("name", equalTo("E2E Category Test"))
+			.extract().path("id");
 
-		// ASSERT: Retrieve the category by ID
+		// Retrieve category
 		given()
-			.accept(ContentType.JSON)
+			.contentType(ContentType.JSON)
 		.when()
 			.get("/api/categories/" + categoryId)
 		.then()
 			.statusCode(200)
 			.body("id", equalTo(categoryId))
-			.body("name", equalTo("Programming"));
+			.body("name", equalTo("E2E Category Test"));
 	}
-	
+
 	@Test
-	void test_UpdateCategory_ShouldModifyExistingCategory() {
-		// ARRANGE: Create a category first
+	void testUpdateCategory() {
+		// Create category
 		Integer categoryId = given()
 			.contentType(ContentType.JSON)
-			.body("""
-				{
-					"name": "Old Category"
-				}
-				""")
+			.body("{\"name\":\"Original Category Name\"}")
 		.when()
 			.post("/api/categories")
 		.then()
 			.statusCode(201)
-			.extract()
-			.path("id");
+			.extract().path("id");
 
-		// ACT: Update the category
-		String updatedCategoryJson = """
-			{
-				"name": "Updated Category"
-			}
-			""";
-
+		// Update category
 		given()
 			.contentType(ContentType.JSON)
-			.body(updatedCategoryJson)
+			.body("{\"name\":\"Updated Category Name\"}")
 		.when()
 			.put("/api/categories/" + categoryId)
 		.then()
 			.statusCode(200)
-			.body("id", equalTo(categoryId))
-			.body("name", equalTo("Updated Category"));
-
-		// ASSERT: Verify persistence by retrieving again
-		given()
-			.accept(ContentType.JSON)
-		.when()
-			.get("/api/categories/" + categoryId)
-		.then()
-			.statusCode(200)
-			.body("name", equalTo("Updated Category"));
+			.body("name", equalTo("Updated Category Name"));
 	}
-	
+
 	@Test
-	void test_DeleteCategory_ShouldRemoveCategory() {
-		// ARRANGE: Create a category first
+	void testDeleteCategory() {
+		// Create category
 		Integer categoryId = given()
 			.contentType(ContentType.JSON)
-			.body("""
-				{
-					"name": "Historical Fiction"
-				}
-				""")
+			.body("{\"name\":\"Category To Delete\"}")
 		.when()
 			.post("/api/categories")
 		.then()
 			.statusCode(201)
-			.extract()
-			.path("id");
+			.extract().path("id");
 
-		// ACT: Delete the category
+		// Delete category
 		given()
 		.when()
 			.delete("/api/categories/" + categoryId)
 		.then()
 			.statusCode(204);
 
-		// ASSERT: Verify category no longer exists
+		// Verify deletion
 		given()
-			.accept(ContentType.JSON)
 		.when()
 			.get("/api/categories/" + categoryId)
 		.then()
 			.statusCode(404);
+	}
+
+	@Test
+	void testDeleteCategoryWithBooks_shouldFail() {
+		// Create category
+		Integer categoryId = given()
+			.contentType(ContentType.JSON)
+			.body("{\"name\":\"Category With Books\"}")
+		.when()
+			.post("/api/categories")
+		.then()
+			.statusCode(201)
+			.extract().path("id");
+
+		// Create book in this category
+		String bookJson = String.format(
+			"{\"title\":\"Book In Category\",\"category\":{\"id\":%d}}",
+			categoryId
+		);
+
+		given()
+			.contentType(ContentType.JSON)
+			.body(bookJson)
+		.when()
+			.post("/api/books")
+		.then()
+			.statusCode(201);
+
+		// Try to delete category - should fail
+		given()
+		.when()
+			.delete("/api/categories/" + categoryId)
+		.then()
+			.statusCode(400)
+			.body("message", containsString("cannot be deleted"));
 	}
 }

@@ -13,7 +13,7 @@
     <a th:href="@{/books/new}" class="btn">+ New Book</a>
   </div>
   
-  <ul>
+  <ul id="booksTable">
     <li th:each="book : ${books}">
       <strong th:text="${book.title}">Title</strong> - 
       <span th:text="${book.author}">Author</span> - 

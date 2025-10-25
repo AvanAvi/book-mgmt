@@ -1,6 +1,7 @@
 package com.attsw.bookstore.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class Category {
     private String name;
 
     @OneToMany(mappedBy = "category")
+    @JsonIgnoreProperties("category")
     private final List<Book> books = new ArrayList<>();
 
     

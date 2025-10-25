@@ -18,7 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @DataJpaTest
 @Testcontainers
-class BookRepositoryTest {
+class BookRepositoryIT {
 
     @Container
     static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:5.7")
