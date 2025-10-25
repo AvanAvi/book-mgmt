@@ -53,7 +53,7 @@ public class CategoryRestController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {    
+    public ResponseEntity<Map<String, String>> deleteCategory(@PathVariable Long id) {    
         if (categoryService.hasBooks(id)) {
             Map<String, String> body = new HashMap<>();
             body.put("message", "Category cannot be deleted while books exist");
