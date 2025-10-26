@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Include Spring Boot's default logging configuration -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    
+    <!-- Console appender with Spring Boot pattern -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    
+    <!-- Reduce Selenium/WebDriver verbosity -->
+    <logger name="org.seleniumhq.selenium" level="WARN"/>
+    <logger name="org.openqa.selenium" level="WARN"/>
+    <logger name="io.github.bonigarcia.wdm" level="WARN"/>
+    
+    <!-- Reduce Testcontainers verbosity -->
+    <logger name="org.testcontainers" level="WARN"/>
+    <logger name="com.github.dockerjava" level="WARN"/>
+    <logger name="tc" level="WARN"/>
+    
+    <!-- Reduce Docker client verbosity -->
+    <logger name="com.github.dockerjava.zerodep" level="WARN"/>
+    <logger name="com.github.dockerjava.core" level="WARN"/>
+    
+    <!-- Reduce Hibernate/JPA verbosity in tests -->
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
+    
+    <!-- Reduce Spring Framework verbosity -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.springframework.web" level="WARN"/>
+    <logger name="org.springframework.boot" level="WARN"/>
+    
+    <!-- Reduce HikariCP connection pool verbosity -->
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+    
+    <!-- Keep application logs at INFO level -->
+    <logger name="com.attsw.bookstore" level="INFO"/>
+    
+    <!-- Root logger at INFO level -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
