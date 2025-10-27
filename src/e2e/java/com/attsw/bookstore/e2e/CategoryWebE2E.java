@@ -1,3 +1,4 @@
+
 package com.attsw.bookstore.e2e;
 
 import static org.assertj.core.api.Assertions.assertThat;

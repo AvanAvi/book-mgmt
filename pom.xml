@@ -225,7 +225,8 @@
             <exclude>**/*IT.java</exclude>
             <exclude>**/*E2E.java</exclude>
           </excludes>
-          <forkedProcessExitTimeoutInSeconds>60</forkedProcessExitTimeoutInSeconds>
+          <forkedProcessExitTimeoutInSeconds>300</forkedProcessExitTimeoutInSeconds>
+          <shutdown>exit</shutdown> 
         </configuration>
       </plugin>
 
@@ -248,6 +249,8 @@
           <excludes>
             <exclude>**/*E2E.java</exclude>
           </excludes>
+          <forkedProcessExitTimeoutInSeconds>300</forkedProcessExitTimeoutInSeconds>
+  		  <shutdown>exit</shutdown>
         </configuration>
       </plugin>
 
@@ -416,6 +419,8 @@
                   <systemPropertyVariables>
                     <server.port>${e2e.server.port}</server.port>
                   </systemPropertyVariables>
+                  <forkedProcessExitTimeoutInSeconds>300</forkedProcessExitTimeoutInSeconds>
+					<shutdown>exit</shutdown>
                 </configuration>
               </execution>
             </executions>
