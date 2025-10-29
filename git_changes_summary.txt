@@ -1,0 +1,836 @@
+ pom.xml                                            |   5 +-
+ .../rest/BookRestControllerWebMvcTest.java         | 105 --------
+ .../rest/CategoryRestControllerWebMvcTest.java     | 111 --------
+ .../web/BookstoreWebControllerHtmlUnitTest.java    | 296 ---------------------
+ .../web/BookstoreWebControllerWebMvcTest.java      | 107 --------
+ .../web/CategoryWebControllerWebMvcTest.java       | 128 ---------
+ 6 files changed, 2 insertions(+), 750 deletions(-)
+diff --git a/pom.xml b/pom.xml
+index 907225f..020a2d6 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -153,8 +153,7 @@
+             <targetTests>
+               <param>com.attsw.bookstore.service.*Test</param>
+               <param>com.attsw.bookstore.web.*Test</param>
+-              <param>com.attsw.bookstore.integration.rest.*WebMvcTest</param>
+-      		  <param>com.attsw.bookstore.integration.web.*WebMvcTest</param>
++              
+             </targetTests>
+             <excludedTestClasses>
+               <param>**/*IT</param>
+@@ -348,7 +347,7 @@
+                 <goals>
+                   <goal>stop</goal>
+                 </goals>
+-              </execution>
++              </execution> 
+             </executions>
+             <configuration>
+               <images>
+diff --git a/src/test/java/com/attsw/bookstore/controller/rest/BookRestControllerWebMvcTest.java b/src/test/java/com/attsw/bookstore/controller/rest/BookRestControllerWebMvcTest.java
+deleted file mode 100644
+index 0c0154e..0000000
+--- a/src/test/java/com/attsw/bookstore/controller/rest/BookRestControllerWebMvcTest.java
++++ /dev/null
+@@ -1,105 +0,0 @@
+-package com.attsw.bookstore.controller.rest;  
+-import com.attsw.bookstore.web.BookRestController;
+-
+-import static org.mockito.Mockito.when;
+-
+-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+-
+-import org.springframework.http.MediaType;
+-import java.util.Arrays;
+-
+-import org.junit.jupiter.api.Test;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+-import org.springframework.test.web.servlet.MockMvc;
+-
+-import com.attsw.bookstore.model.Book;
+-import com.attsw.bookstore.service.BookService;
+-
+-@WebMvcTest(BookRestController.class)
+-class BookRestControllerWebMvcTest {
+-
+-    @Autowired
+-    private MockMvc mvc;
+-
+-    @MockitoBean
+-    private BookService bookService;
+-
+-    @Test
+-    void shouldReturnJsonListOfBooks() throws Exception {
+-        Book b = Book.withTitle("Clean Code");
+-        when(bookService.getAllBooks()).thenReturn(Arrays.asList(b));
+-
+-        mvc.perform(get("/api/books"))
+-            .andExpect(status().isOk())
+-            .andExpect(jsonPath("$[0].title").value("Clean Code"));
+-    }
+-
+-    @Test
+-    void shouldCreateBookViaPost() throws Exception {
+-        Book saved = Book.withTitle("Refactoring");
+-        saved.setId(1L);
+-        saved.setAuthor("Martin Fowler");
+-        saved.setIsbn("0201485672");
+-
+-        when(bookService.saveBook(org.mockito.ArgumentMatchers.any(Book.class))).thenReturn(saved);
+-
+-        mvc.perform(post("/api/books")
+-                .contentType(MediaType.APPLICATION_JSON)
+-                .content("""
+-                    {
+-                      "title": "Refactoring",
+-                      "author": "Martin Fowler",
+-                      "isbn": "0201485672"
+-                    }
+-                    """))
+-            .andExpect(status().isCreated())
+-            .andExpect(jsonPath("$.title").value("Refactoring"));
+-    }
+-
+-    @Test
+-    void shouldReturnSingleBookById() throws Exception {
+-        Book saved = Book.withTitle("Clean Code");
+-        saved.setId(1L);
+-
+-        when(bookService.getBookById(1L)).thenReturn(saved);
+-
+-        mvc.perform(get("/api/books/1"))
+-            .andExpect(status().isOk())
+-            .andExpect(jsonPath("$.title").value("Clean Code"));
+-    }
+-
+-    @Test
+-    void shouldUpdateExistingBookViaPut() throws Exception {
+-        Book updated = Book.withTitle("New Title");
+-        updated.setId(1L);
+-        updated.setAuthor("New Author");
+-        updated.setIsbn("1111111111");
+-
+-        when(bookService.updateBook(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.any(Book.class))).thenReturn(updated);
+-
+-        mvc.perform(put("/api/books/1")
+-                .contentType(MediaType.APPLICATION_JSON)
+-                .content("""
+-                    {
+-                      "title": "New Title",
+-                      "author": "New Author",
+-                      "isbn": "1111111111"
+-                    }
+-                    """))
+-            .andExpect(status().isOk())
+-            .andExpect(jsonPath("$.title").value("New Title"));
+-    }
+-
+-    @Test
+-    void shouldDeleteBookViaDelete() throws Exception {
+-        mvc.perform(delete("/api/books/1"))
+-            .andExpect(status().isNoContent());
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/test/java/com/attsw/bookstore/controller/rest/CategoryRestControllerWebMvcTest.java b/src/test/java/com/attsw/bookstore/controller/rest/CategoryRestControllerWebMvcTest.java
+deleted file mode 100644
+index bf79a2d..0000000
+--- a/src/test/java/com/attsw/bookstore/controller/rest/CategoryRestControllerWebMvcTest.java
++++ /dev/null
+@@ -1,111 +0,0 @@
+-package com.attsw.bookstore.controller.rest;
+-
+-import com.attsw.bookstore.web.CategoryRestController;
+-
+-import static org.mockito.Mockito.when;
+-import static org.mockito.Mockito.verify;
+-import static org.mockito.Mockito.never;
+-import static org.mockito.ArgumentMatchers.anyLong;
+-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+-
+-import org.springframework.http.MediaType;
+-import java.util.Arrays;
+-
+-import org.junit.jupiter.api.Test;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+-import org.springframework.test.web.servlet.MockMvc;
+-
+-import com.attsw.bookstore.model.Category;
+-import com.attsw.bookstore.service.CategoryService;
+-
+-@WebMvcTest(CategoryRestController.class)
+-class CategoryRestControllerWebMvcTest {
+-
+-    @Autowired
+-    private MockMvc mvc;
+-
+-    @MockitoBean
+-    private CategoryService categoryService;
+-
+-    @Test
+-    void shouldReturnJsonListOfCategories() throws Exception {
+-        Category c = new Category();
+-        c.setName("Fiction");
+-        when(categoryService.getAllCategories()).thenReturn(Arrays.asList(c));
+-
+-        mvc.perform(get("/api/categories"))
+-            .andExpect(status().isOk())
+-            .andExpect(jsonPath("$[0].name").value("Fiction"));
+-    }
+-
+-    @Test
+-    void shouldCreateCategoryViaPost() throws Exception {
+-        Category saved = new Category();
+-        saved.setId(1L);
+-        saved.setName("Science");
+-
+-        when(categoryService.saveCategory(org.mockito.ArgumentMatchers.any(Category.class))).thenReturn(saved);
+-
+-        mvc.perform(post("/api/categories")
+-                .contentType(MediaType.APPLICATION_JSON)
+-                .content("{\"name\":\"Science\"}"))
+-            .andExpect(status().isCreated())
+-            .andExpect(jsonPath("$.name").value("Science"));
+-    }
+-
+-    @Test
+-    void shouldReturnSingleCategoryById() throws Exception {
+-        Category saved = new Category();
+-        saved.setId(1L);
+-        saved.setName("History");
+-
+-        when(categoryService.getCategoryById(1L)).thenReturn(saved);
+-
+-        mvc.perform(get("/api/categories/1"))
+-            .andExpect(status().isOk())
+-            .andExpect(jsonPath("$.name").value("History"));
+-    }
+-
+-    @Test
+-    void shouldUpdateExistingCategoryViaPut() throws Exception {
+-        Category updated = new Category();
+-        updated.setId(1L);
+-        updated.setName("Updated Name");
+-
+-        when(categoryService.saveCategory(org.mockito.ArgumentMatchers.any(Category.class))).thenReturn(updated);
+-
+-        mvc.perform(put("/api/categories/1")
+-                .contentType(MediaType.APPLICATION_JSON)
+-                .content("{\"name\":\"Updated Name\"}"))
+-            .andExpect(status().isOk())
+-            .andExpect(jsonPath("$.name").value("Updated Name"));
+-    }
+-
+-    @Test
+-    void shouldDeleteCategoryViaDelete() throws Exception {
+-        when(categoryService.hasBooks(1L)).thenReturn(false);
+-        
+-        mvc.perform(delete("/api/categories/1"))
+-            .andExpect(status().isNoContent())
+-            .andExpect(content().string(""));
+-        
+-        verify(categoryService).hasBooks(1L);
+-        verify(categoryService).deleteCategory(1L);
+-    }
+-
+-    @Test
+-    void shouldReturnBadRequestWhenDeletingCategoryWithBooks() throws Exception {
+-        when(categoryService.hasBooks(1L)).thenReturn(true);
+-
+-        mvc.perform(delete("/api/categories/1"))
+-            .andExpect(status().isBadRequest())
+-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+-            .andExpect(jsonPath("$.message").value("Category cannot be deleted while books exist"));
+-        
+-        verify(categoryService).hasBooks(1L);
+-        verify(categoryService, never()).deleteCategory(anyLong());
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/test/java/com/attsw/bookstore/controller/web/BookstoreWebControllerHtmlUnitTest.java b/src/test/java/com/attsw/bookstore/controller/web/BookstoreWebControllerHtmlUnitTest.java
+deleted file mode 100644
+index cc90ef7..0000000
+--- a/src/test/java/com/attsw/bookstore/controller/web/BookstoreWebControllerHtmlUnitTest.java
++++ /dev/null
+@@ -1,296 +0,0 @@
+-package com.attsw.bookstore.controller.web;
+-
+-import static org.assertj.core.api.Assertions.assertThat;
+-import static org.mockito.Mockito.when;
+-
+-import java.util.Arrays;
+-import java.util.Collections;
+-
+-import org.htmlunit.WebClient;
+-import org.htmlunit.html.HtmlAnchor;
+-import org.htmlunit.html.HtmlElement;
+-import org.htmlunit.html.HtmlForm;
+-import org.htmlunit.html.HtmlInput;
+-import org.htmlunit.html.HtmlPage;
+-import org.htmlunit.html.HtmlSelect;
+-import org.junit.jupiter.api.Test;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+-
+-import com.attsw.bookstore.model.Book;
+-import com.attsw.bookstore.model.Category;
+-import com.attsw.bookstore.service.BookService;
+-import com.attsw.bookstore.service.CategoryService;
+-import com.attsw.bookstore.web.BookstoreWebController;
+-
+-/**
+- * HTMLUnit tests for BookstoreWebController.
+- * Tests HTML structure and Thymeleaf templates.
+- * 
+- * Based on Spring Boot Unit Tests document section 4.3.2 (pages 29–38).
+- */
+-@WebMvcTest(controllers = BookstoreWebController.class)
+-class BookstoreWebControllerHtmlUnitTest {
+-
+-    @Autowired
+-    private WebClient webClient;
+-
+-    @MockitoBean
+-    private BookService bookService;
+-
+-    @MockitoBean
+-    private CategoryService categoryService;
+-
+-    /** 
+-     * Helper method to remove Windows carriage returns for cross-platform compatibility. 
+-     */
+-    private String removeWindowsCR(String s) {
+-        return s.replace("\r", "");
+-    }
+-
+-    // ========== TEST 1: Page Title ==========
+-    @Test
+-    void testBooksListPageTitle() throws Exception {
+-        when(bookService.getAllBooks()).thenReturn(Collections.emptyList());
+-
+-        HtmlPage page = webClient.getPage("/books");
+-        assertThat(page.getTitleText()).isEqualTo("Book List");
+-    }
+-
+-    // ========== TEST 2: Empty List Message ==========
+-    @Test
+-    void testBooksListPageWithNoBooks() throws Exception {
+-        when(bookService.getAllBooks()).thenReturn(Collections.emptyList());
+-
+-        HtmlPage page = webClient.getPage("/books");
+-
+-        HtmlElement booksList = page.getHtmlElementById("booksTable");
+-        assertThat(booksList).isNotNull();
+-        assertThat(booksList.getElementsByTagName("li")).isEmpty();
+-    }
+-
+-    // ========== TEST 3: List with Items in Table ==========
+-    @Test
+-    void testBooksListPageWithBooks_ShouldShowThemInList() throws Exception {
+-        Book book1 = Book.withTitle("Clean Code");
+-        book1.setId(1L);
+-        book1.setAuthor("Robert Martin");
+-        book1.setIsbn("9780132350884");
+-
+-        Book book2 = Book.withTitle("Refactoring");
+-        book2.setId(2L);
+-        book2.setAuthor("Martin Fowler");
+-        book2.setIsbn("9780201485677");
+-
+-        when(bookService.getAllBooks()).thenReturn(Arrays.asList(book1, book2));
+-
+-        HtmlPage page = webClient.getPage("/books");
+-
+-        HtmlElement booksList = page.getHtmlElementById("booksTable");
+-        assertThat(booksList).isNotNull();
+-
+-        String pageText = removeWindowsCR(page.asNormalizedText());
+-        assertThat(pageText).contains("Clean Code", "Refactoring", "Robert Martin", "Martin Fowler");
+-        assertThat(pageText).contains("9780132350884", "9780201485677");
+-
+-        HtmlAnchor editLink1 = page.getAnchorByHref("/books/1/edit");
+-        assertThat(editLink1).isNotNull();
+-        
+-        HtmlAnchor editLink2 = page.getAnchorByHref("/books/2/edit");
+-        assertThat(editLink2).isNotNull();
+-    }
+-
+- // ========== TEST 4: Edit Existing Item with Form ==========
+-    @Test
+-    void testEditExistingBook() throws Exception {
+-        Category category = new Category();
+-        category.setId(1L);
+-        category.setName("Fiction");
+-        
+-        Book existingBook = Book.withTitle("Original Title");
+-        existingBook.setId(1L);
+-        existingBook.setAuthor("Original Author");
+-        existingBook.setIsbn("1234567890");
+-        existingBook.setCategory(category);
+-
+-        when(bookService.getBookById(1L)).thenReturn(existingBook);
+-        when(categoryService.getAllCategories()).thenReturn(Arrays.asList(category));
+-
+-        HtmlPage page = webClient.getPage("/books/1/edit");
+-
+-        assertThat(page.getTitleText()).isEqualTo("Edit Book");
+-
+-        HtmlForm form = page.getForms().get(0);
+-        assertThat(form).isNotNull();
+-
+-        String pageText = removeWindowsCR(page.asNormalizedText());
+-        assertThat(pageText).contains("Original Title", "Original Author", "1234567890");
+-
+-        // Verify form can be filled
+-        HtmlInput titleInput = form.getInputByName("title");
+-        titleInput.setValue("Modified Title");
+-        
+-        HtmlInput authorInput = form.getInputByName("author");
+-        authorInput.setValue("Modified Author");
+-        
+-        HtmlInput isbnInput = form.getInputByName("isbn");
+-        isbnInput.setValue("0987654321");
+-        
+-        // Verify the category dropdown exists with options (1 category + 1 "No Category" option = 2 total)
+-        HtmlSelect categorySelect = form.getSelectByName("category");
+-        assertThat(categorySelect).isNotNull();
+-        assertThat(categorySelect.getOptions().size()).isEqualTo(2);
+-        
+-        // Verify submit button exists
+-        assertThat(form.getButtonByName("btn_submit")).isNotNull();
+-    }
+-     
+-
+- // ========== TEST 5: Create New Item with Form ==========
+-    @Test
+-    void testCreateNewBook() throws Exception {
+-        Category category1 = new Category();
+-        category1.setId(1L);
+-        category1.setName("Fiction");
+-
+-        Category category2 = new Category();
+-        category2.setId(2L);
+-        category2.setName("Science");
+-
+-        when(categoryService.getAllCategories()).thenReturn(Arrays.asList(category1, category2));
+-
+-        HtmlPage page = webClient.getPage("/books/new");
+-
+-        assertThat(page.getTitleText()).isEqualTo("New Book");
+-
+-        HtmlForm form = page.getForms().get(0);
+-        assertThat(form).isNotNull();
+-
+-        // Verify form can be filled
+-        HtmlInput titleInput = form.getInputByName("title");
+-        titleInput.setValue("New Book Title");
+-        
+-        HtmlInput authorInput = form.getInputByName("author");
+-        authorInput.setValue("New Author");
+-        
+-        HtmlInput isbnInput = form.getInputByName("isbn");
+-        isbnInput.setValue("1111111111");
+-        
+-        // Verify the category dropdown exists with options (2 categories + 1 "No Category" option = 3 total)
+-        HtmlSelect categorySelect = form.getSelectByName("category");
+-        assertThat(categorySelect).isNotNull();
+-        assertThat(categorySelect.getOptions().size()).isEqualTo(3);
+-        
+-        // Verify submit button exists
+-        assertThat(form.getButtonByName("btn_submit")).isNotNull();
+-    }
+-
+-    // ========== TEST 6: Link to Create New Item ==========
+-    @Test
+-    void testBooksListPage_ShouldProvideALinkForCreatingNewBook() throws Exception {
+-        when(bookService.getAllBooks()).thenReturn(Collections.emptyList());
+-
+-        HtmlPage page = webClient.getPage("/books");
+-
+-        HtmlAnchor newBookLink = page.getAnchorByText("+ New Book");
+-        assertThat(newBookLink.getHrefAttribute()).isEqualTo("/books/new");
+-    }
+-
+-    // ========== TEST 7: Edit Links in Table ==========
+-    @Test
+-    void testBooksListPageWithBooks_ShouldShowEditLinks() throws Exception {
+-        Book book1 = Book.withTitle("Book 1");
+-        book1.setId(1L);
+-
+-        Book book2 = Book.withTitle("Book 2");
+-        book2.setId(2L);
+-
+-        when(bookService.getAllBooks()).thenReturn(Arrays.asList(book1, book2));
+-
+-        HtmlPage page = webClient.getPage("/books");
+-
+-        HtmlElement booksList = page.getHtmlElementById("booksTable");
+-        assertThat(booksList).isNotNull();
+-
+-        String listText = removeWindowsCR(booksList.asNormalizedText());
+-        assertThat(listText).contains("Book 1", "Book 2", "Edit");
+-
+-        HtmlAnchor editLink1 = page.getAnchorByHref("/books/1/edit");
+-        assertThat(editLink1).isNotNull();
+-        
+-        HtmlAnchor editLink2 = page.getAnchorByHref("/books/2/edit");
+-        assertThat(editLink2).isNotNull();
+-    }
+-
+- // ========== BONUS TEST: Verify Form Structure ==========
+-    @Test
+-    void testNewBookFormHasAllRequiredFields() throws Exception {
+-        Category category1 = new Category();
+-        category1.setId(1L);
+-        category1.setName("Fiction");
+-
+-        Category category2 = new Category();
+-        category2.setId(2L);
+-        category2.setName("Science");
+-
+-        when(categoryService.getAllCategories()).thenReturn(Arrays.asList(category1, category2));
+-
+-        HtmlPage page = webClient.getPage("/books/new");
+-
+-        HtmlForm form = page.getForms().get(0);
+-
+-        HtmlInput titleInput = form.getInputByName("title");
+-        assertThat(titleInput).isNotNull();
+-        
+-        HtmlInput authorInput = form.getInputByName("author");
+-        assertThat(authorInput).isNotNull();
+-        
+-        HtmlInput isbnInput = form.getInputByName("isbn");
+-        assertThat(isbnInput).isNotNull();
+-        
+-        HtmlSelect categorySelect = form.getSelectByName("category");
+-        assertThat(categorySelect).isNotNull();
+-        // Verify dropdown has options (2 categories + 1 "No Category" = 3 total)
+-        assertThat(categorySelect.getOptions().size()).isEqualTo(3);
+-        
+-        assertThat(form.getButtonByName("btn_submit")).isNotNull();
+-    }
+-
+-    // ========== BONUS TEST: Edit Form Structure ==========
+-    @Test
+-    void testEditBookFormHasAllRequiredFields() throws Exception {
+-        Book book = Book.withTitle("Test Book");
+-        book.setId(1L);
+-        book.setAuthor("Test Author");
+-        book.setIsbn("1234567890");
+-
+-        Category category = new Category();
+-        category.setId(1L);
+-        category.setName("Fiction");
+-        book.setCategory(category);
+-
+-        when(bookService.getBookById(1L)).thenReturn(book);
+-        when(categoryService.getAllCategories()).thenReturn(Arrays.asList(category));
+-
+-        HtmlPage page = webClient.getPage("/books/1/edit");
+-
+-        HtmlForm form = page.getForms().get(0);
+-
+-        HtmlInput methodInput = form.getInputByName("_method");
+-        assertThat(methodInput).isNotNull();
+-        assertThat(methodInput.getValue()).isEqualTo("put");
+-        
+-        HtmlInput titleInput = form.getInputByName("title");
+-        assertThat(titleInput).isNotNull();
+-        
+-        HtmlInput authorInput = form.getInputByName("author");
+-        assertThat(authorInput).isNotNull();
+-        
+-        HtmlInput isbnInput = form.getInputByName("isbn");
+-        assertThat(isbnInput).isNotNull();
+-        
+-        assertThat(form.getSelectByName("category")).isNotNull();
+-        assertThat(form.getButtonByName("btn_submit")).isNotNull();
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/test/java/com/attsw/bookstore/controller/web/BookstoreWebControllerWebMvcTest.java b/src/test/java/com/attsw/bookstore/controller/web/BookstoreWebControllerWebMvcTest.java
+deleted file mode 100644
+index ce22c5b..0000000
+--- a/src/test/java/com/attsw/bookstore/controller/web/BookstoreWebControllerWebMvcTest.java
++++ /dev/null
+@@ -1,107 +0,0 @@
+-package com.attsw.bookstore.controller.web;
+-
+-import com.attsw.bookstore.web.BookstoreWebController;
+-import com.attsw.bookstore.service.CategoryService;
+-import com.attsw.bookstore.service.BookService;
+-
+-import static org.mockito.Mockito.verify;
+-import static org.mockito.Mockito.when;
+-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+-
+-import java.util.Arrays;
+-
+-import org.junit.jupiter.api.Test;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+-import org.springframework.test.web.servlet.MockMvc;
+-
+-import com.attsw.bookstore.model.Book;
+-
+-@WebMvcTest(BookstoreWebController.class)
+-class BookstoreWebControllerWebMvcTest {
+-
+-    @Autowired
+-    private MockMvc mvc;
+-
+-    @MockitoBean
+-    private BookService bookService;
+-    
+-    @MockitoBean
+-    private CategoryService categoryService;
+-
+-    @Test
+-    void shouldShowBookListPage() throws Exception {
+-        Book b = Book.withTitle("Clean Code");
+-        when(bookService.getAllBooks()).thenReturn(Arrays.asList(b));
+-
+-        mvc.perform(get("/books"))
+-            .andExpect(status().isOk())
+-            .andExpect(view().name("books/list"))
+-            .andExpect(model().attributeExists("books"));
+-    }
+-
+-    @Test
+-    void shouldShowAddBookForm() throws Exception {
+-        mvc.perform(get("/books/new"))
+-            .andExpect(status().isOk())
+-            .andExpect(view().name("books/new"))
+-            .andExpect(model().attributeExists("book"))
+-            .andExpect(model().attributeExists("categories"));
+-    }
+-
+-    @Test
+-    void shouldSaveBookAndRedirectToList() throws Exception {
+-        Book saved = Book.withTitle("TDD");
+-        saved.setId(1L);
+-
+-        when(bookService.saveBook(org.mockito.ArgumentMatchers.any(Book.class))).thenReturn(saved);
+-
+-        mvc.perform(post("/books")
+-                .param("title", "TDD")
+-                .param("author", "Kent")
+-                .param("isbn", "123"))
+-            .andExpect(status().is3xxRedirection())
+-            .andExpect(redirectedUrl("/books"));
+-    }
+-
+-    @Test
+-    void shouldShowEditBookForm() throws Exception {
+-        Book existing = Book.withTitle("Clean Code");
+-        existing.setId(1L);
+-
+-        when(bookService.getBookById(1L)).thenReturn(existing);
+-
+-        mvc.perform(get("/books/1/edit"))
+-            .andExpect(status().isOk())
+-            .andExpect(view().name("books/edit"))
+-            .andExpect(model().attributeExists("book"))
+-            .andExpect(model().attributeExists("categories"));
+-    }
+-
+-    @Test
+-    void shouldUpdateBookAndRedirectToList() throws Exception {
+-        Book updated = Book.withTitle("Updated Title");
+-        updated.setId(1L);
+-
+-        when(bookService.updateBook(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.any(Book.class))).thenReturn(updated);
+-
+-        mvc.perform(post("/books/1")
+-                .param("title", "Updated Title")
+-                .param("author", "Updated Author")
+-                .param("isbn", "new456"))
+-            .andExpect(status().is3xxRedirection())
+-            .andExpect(redirectedUrl("/books"));
+-    }
+-
+-    @Test
+-    void shouldDeleteBookAndRedirectToList() throws Exception {
+-        mvc.perform(post("/books/1/delete"))
+-            .andExpect(status().is3xxRedirection())
+-            .andExpect(redirectedUrl("/books"));
+-
+-        verify(bookService).deleteBook(1L);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/test/java/com/attsw/bookstore/controller/web/CategoryWebControllerWebMvcTest.java b/src/test/java/com/attsw/bookstore/controller/web/CategoryWebControllerWebMvcTest.java
+deleted file mode 100644
+index 269ff6c..0000000
+--- a/src/test/java/com/attsw/bookstore/controller/web/CategoryWebControllerWebMvcTest.java
++++ /dev/null
+@@ -1,128 +0,0 @@
+-package com.attsw.bookstore.controller.web;
+-
+-import com.attsw.bookstore.web.CategoryWebController;
+-import com.attsw.bookstore.service.CategoryService;
+-import com.attsw.bookstore.service.BookService;
+-
+-import static org.mockito.Mockito.verify;
+-import static org.mockito.Mockito.when;
+-import static org.mockito.Mockito.never;
+-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+-
+-import java.util.Arrays;
+-
+-import org.junit.jupiter.api.Test;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+-import org.springframework.test.web.servlet.MockMvc;
+-
+-import com.attsw.bookstore.model.Category;
+-
+-@WebMvcTest(CategoryWebController.class)
+-class CategoryWebControllerWebMvcTest {
+-
+-    @Autowired
+-    private MockMvc mvc;
+-
+-    @MockitoBean
+-    private CategoryService categoryService;
+-    
+-    @MockitoBean
+-    private BookService bookService;
+-
+-    @Test
+-    void shouldShowCategoryListPage() throws Exception {
+-        Category c = new Category();
+-        c.setName("Software");
+-        when(categoryService.getAllCategories()).thenReturn(Arrays.asList(c));
+-
+-        mvc.perform(get("/categories"))
+-            .andExpect(status().isOk())
+-            .andExpect(view().name("categories/list"))
+-            .andExpect(model().attributeExists("categories"));
+-    }
+-
+-    @Test
+-    void shouldShowAddCategoryForm() throws Exception {
+-        mvc.perform(get("/categories/new"))
+-            .andExpect(status().isOk())
+-            .andExpect(view().name("categories/new"))
+-            .andExpect(model().attributeExists("category"));
+-    }
+-
+-    @Test
+-    void shouldSaveCategoryAndRedirectToList() throws Exception {
+-        Category saved = new Category();
+-        saved.setId(1L);
+-        saved.setName("Fiction");
+-
+-        when(categoryService.saveCategory(org.mockito.ArgumentMatchers.any(Category.class))).thenReturn(saved);
+-
+-        mvc.perform(post("/categories")
+-                .param("name", "Fiction"))
+-            .andExpect(status().is3xxRedirection())
+-            .andExpect(redirectedUrl("/categories"));
+-    }
+-
+-    @Test
+-    void shouldShowEditCategoryForm() throws Exception {
+-        Category existing = new Category();
+-        existing.setId(1L);
+-        existing.setName("Science");
+-
+-        when(categoryService.getCategoryById(1L)).thenReturn(existing);
+-
+-        mvc.perform(get("/categories/1/edit"))
+-            .andExpect(status().isOk())
+-            .andExpect(view().name("categories/edit"))
+-            .andExpect(model().attributeExists("category"));
+-    }
+-
+-    @Test
+-    void shouldUpdateCategoryAndRedirectToList() throws Exception {
+-        Category updated = new Category();
+-        updated.setId(1L);
+-        updated.setName("Updated Name");
+-
+-        when(categoryService.saveCategory(org.mockito.ArgumentMatchers.any(Category.class))).thenReturn(updated);
+-
+-        mvc.perform(post("/categories/1")
+-                .param("name", "Updated Name"))
+-            .andExpect(status().is3xxRedirection())
+-            .andExpect(redirectedUrl("/categories"));
+-    }
+-
+-    @Test
+-    void shouldDeleteCategoryAndRedirectToList() throws Exception {
+-        when(categoryService.hasBooks(1L)).thenReturn(false);
+-        
+-        mvc.perform(post("/categories/1/delete"))
+-            .andExpect(status().is3xxRedirection())
+-            .andExpect(redirectedUrl("/categories"));
+-
+-        verify(categoryService).hasBooks(1L);
+-        verify(categoryService).deleteCategory(1L);
+-    }
+-    
+-    @Test
+-    void shouldNotDeleteCategoryWhenItHasBooksAndShowError() throws Exception {
+-        Category category = new Category();
+-        category.setId(1L);
+-        category.setName("Fiction");
+-        
+-        when(categoryService.hasBooks(1L)).thenReturn(true);
+-        when(categoryService.getCategoryById(1L)).thenReturn(category);
+-        
+-        mvc.perform(post("/categories/1/delete"))
+-            .andExpect(status().is3xxRedirection())
+-            .andExpect(redirectedUrl("/categories"))
+-            .andExpect(flash().attributeExists("error"));
+-
+-        verify(categoryService).hasBooks(1L);
+-        verify(categoryService).getCategoryById(1L);
+-        verify(categoryService, never()).deleteCategory(1L);
+-    }
+-}
+\ No newline at end of file
+
+
+=== FILE MOVES ===
+On branch feature/add-bookstore-htmlunit-tests
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   pom.xml
+	deleted:    src/test/java/com/attsw/bookstore/controller/rest/BookRestControllerWebMvcTest.java
+	deleted:    src/test/java/com/attsw/bookstore/controller/rest/CategoryRestControllerWebMvcTest.java
+	deleted:    src/test/java/com/attsw/bookstore/controller/web/BookstoreWebControllerHtmlUnitTest.java
+	deleted:    src/test/java/com/attsw/bookstore/controller/web/BookstoreWebControllerWebMvcTest.java
+	deleted:    src/test/java/com/attsw/bookstore/controller/web/CategoryWebControllerWebMvcTest.java
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_changes_summary.txt
+	src/test/java/com/attsw/bookstore/web/BookRestControllerWebMvcTest.java
+	src/test/java/com/attsw/bookstore/web/BookstoreWebControllerHtmlUnitTest.java
+	src/test/java/com/attsw/bookstore/web/BookstoreWebControllerWebMvcTest.java
+	src/test/java/com/attsw/bookstore/web/CategoryRestControllerWebMvcTest.java
+	src/test/java/com/attsw/bookstore/web/CategoryWebControllerWebMvcTest.java
+
+no changes added to commit (use "git add" and/or "git commit -a")

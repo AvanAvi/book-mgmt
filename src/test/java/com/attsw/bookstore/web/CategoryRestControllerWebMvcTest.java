@@ -1,4 +1,4 @@
-package com.attsw.bookstore.controller.rest;
+package com.attsw.bookstore.web;
 
 import com.attsw.bookstore.web.CategoryRestController;
 
