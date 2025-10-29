@@ -22,7 +22,6 @@ import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.service.BookService;
 import com.attsw.bookstore.service.CategoryService;
-import com.attsw.bookstore.web.BookstoreWebController;
 
 /**
  * HTMLUnit tests for BookstoreWebController.

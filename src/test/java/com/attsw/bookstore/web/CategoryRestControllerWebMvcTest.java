@@ -1,6 +1,5 @@
 package com.attsw.bookstore.web;
 
-import com.attsw.bookstore.web.CategoryRestController;
 
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
