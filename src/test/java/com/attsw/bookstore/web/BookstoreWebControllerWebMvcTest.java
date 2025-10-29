@@ -1,6 +1,5 @@
 package com.attsw.bookstore.web;
 
-import com.attsw.bookstore.web.BookstoreWebController;
 import com.attsw.bookstore.service.CategoryService;
 import com.attsw.bookstore.service.BookService;
 

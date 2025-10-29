@@ -90,8 +90,9 @@ class BookstoreWebControllerHtmlUnitTest {
         assertThat(booksList).isNotNull();
 
         String pageText = removeWindowsCR(page.asNormalizedText());
-        assertThat(pageText).contains("Clean Code", "Refactoring", "Robert Martin", "Martin Fowler");
-        assertThat(pageText).contains("9780132350884", "9780201485677");
+        assertThat(pageText)
+            .contains("Clean Code", "Refactoring", "Robert Martin", "Martin Fowler")
+            .contains("9780132350884", "9780201485677");
 
         HtmlAnchor editLink1 = page.getAnchorByHref("/books/1/edit");
         assertThat(editLink1).isNotNull();
@@ -138,8 +139,9 @@ class BookstoreWebControllerHtmlUnitTest {
         
         // Verify the category dropdown exists with options (1 category + 1 "No Category" option = 2 total)
         HtmlSelect categorySelect = form.getSelectByName("category");
-        assertThat(categorySelect).isNotNull();
-        assertThat(categorySelect.getOptions().size()).isEqualTo(2);
+        assertThat(categorySelect)
+            .isNotNull();
+        assertThat(categorySelect.getOptions()).hasSize(2);
         
         // Verify submit button exists
         assertThat(form.getButtonByName("btn_submit")).isNotNull();
@@ -178,8 +180,9 @@ class BookstoreWebControllerHtmlUnitTest {
         
         // Verify the category dropdown exists with options (2 categories + 1 "No Category" option = 3 total)
         HtmlSelect categorySelect = form.getSelectByName("category");
-        assertThat(categorySelect).isNotNull();
-        assertThat(categorySelect.getOptions().size()).isEqualTo(3);
+        assertThat(categorySelect)
+            .isNotNull();
+        assertThat(categorySelect.getOptions()).hasSize(3);
         
         // Verify submit button exists
         assertThat(form.getButtonByName("btn_submit")).isNotNull();
@@ -249,9 +252,10 @@ class BookstoreWebControllerHtmlUnitTest {
         assertThat(isbnInput).isNotNull();
         
         HtmlSelect categorySelect = form.getSelectByName("category");
-        assertThat(categorySelect).isNotNull();
+        assertThat(categorySelect)
+            .isNotNull();
         // Verify dropdown has options (2 categories + 1 "No Category" = 3 total)
-        assertThat(categorySelect.getOptions().size()).isEqualTo(3);
+        assertThat(categorySelect.getOptions()).hasSize(3);
         
         assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
@@ -277,7 +281,8 @@ class BookstoreWebControllerHtmlUnitTest {
         HtmlForm form = page.getForms().get(0);
 
         HtmlInput methodInput = form.getInputByName("_method");
-        assertThat(methodInput).isNotNull();
+        assertThat(methodInput)
+            .isNotNull();
         assertThat(methodInput.getValue()).isEqualTo("put");
         
         HtmlInput titleInput = form.getInputByName("title");
@@ -289,7 +294,8 @@ class BookstoreWebControllerHtmlUnitTest {
         HtmlInput isbnInput = form.getInputByName("isbn");
         assertThat(isbnInput).isNotNull();
         
-        assertThat(form.getSelectByName("category")).isNotNull();
+        assertThat(form.getSelectByName("category"))
+            .isNotNull();
         assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
 }
