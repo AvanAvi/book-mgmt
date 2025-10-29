@@ -1,4 +1,4 @@
-package com.attsw.bookstore.controller.web;
+package com.attsw.bookstore.web;
 
 import com.attsw.bookstore.web.CategoryWebController;
 import com.attsw.bookstore.service.CategoryService;

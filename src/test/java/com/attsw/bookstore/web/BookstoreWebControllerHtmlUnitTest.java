@@ -1,4 +1,4 @@
-package com.attsw.bookstore.controller.web;
+package com.attsw.bookstore.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

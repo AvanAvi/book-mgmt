@@ -153,8 +153,7 @@
             <targetTests>
               <param>com.attsw.bookstore.service.*Test</param>
               <param>com.attsw.bookstore.web.*Test</param>
-              <param>com.attsw.bookstore.integration.rest.*WebMvcTest</param>
-      		  <param>com.attsw.bookstore.integration.web.*WebMvcTest</param>
+              
             </targetTests>
             <excludedTestClasses>
               <param>**/*IT</param>
@@ -348,7 +347,7 @@
                 <goals>
                   <goal>stop</goal>
                 </goals>
-              </execution>
+              </execution> 
             </executions>
             <configuration>
               <images>
