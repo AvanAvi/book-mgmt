@@ -1,5 +1,4 @@
 package com.attsw.bookstore.web;  
-import com.attsw.bookstore.web.BookRestController;
 
 import static org.mockito.Mockito.when;
 
