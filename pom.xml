@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0 "
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance "
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0  
                              https://maven.apache.org/xsd/maven-4.0.0.xsd ">
   <modelVersion>4.0.0</modelVersion>
 
@@ -20,6 +20,10 @@
 
   <properties>
     <java.version>17</java.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+
+    <!-- SonarCloud Configuration -->
     <sonar.organization>avanavi</sonar.organization>
     <sonar.host.url>https://sonarcloud.io </sonar.host.url>
     <sonar.projectKey>AvanAvi_book-mgmt</sonar.projectKey>
@@ -27,20 +31,33 @@
       **/BookstoreManagementTddApplication.*,
       **/model/**
     </sonar.coverage.exclusions>
+    
+    <sonar.tests>
+      ${project.basedir}/src/test/java,
+      ${project.basedir}/src/it/java,
+      ${project.basedir}/src/e2e/java
+    </sonar.tests>
+    <sonar.junit.reportPaths>
+      ${project.build.directory}/surefire-reports,
+      ${project.build.directory}/failsafe-reports
+    </sonar.junit.reportPaths>
 
+    <!-- Test Execution Control -->
     <skip.unit-tests>false</skip.unit-tests>
     <skip.integration-tests>false</skip.integration-tests>
 
+    <!-- MySQL Configuration for E2E Tests -->
     <mysql.docker.version>5.7</mysql.docker.version>
-    <mysql.port>3307</mysql.port>
     <mysql.database>bookstore_e2e</mysql.database>
     <mysql.username>bookstore_user</mysql.username>
     <mysql.password>bookstore_pass</mysql.password>
     
+    <!-- Selenium Version -->
     <selenium.version>4.37.0</selenium.version>
   </properties>
 
   <dependencies>
+    <!-- Spring Boot Starters -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -60,19 +77,14 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- Databases -->
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>runtime</scope>
-    </dependency>
+    <!-- Production Database -->
     <dependency>
       <groupId>com.mysql</groupId>
       <artifactId>mysql-connector-j</artifactId>
       <scope>runtime</scope>
     </dependency>
 
-    <!-- Testing -->
+    <!-- Testing Dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -94,27 +106,24 @@
       <scope>test</scope>
     </dependency>
     
-    <!-- HTMLUnit for Web Controller HTML Testing -->
-	<dependency>
-	  <groupId>org.htmlunit</groupId>
-	  <artifactId>htmlunit</artifactId>
-	  <scope>test</scope>
-	</dependency>
+    <!-- HTMLUnit for Web Controller Testing -->
+    <dependency>
+      <groupId>org.htmlunit</groupId>
+      <artifactId>htmlunit</artifactId>
+      <scope>test</scope>
+    </dependency>
 
-    <!-- Selenium -->
+    <!-- Selenium for E2E Tests -->
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
       <scope>test</scope>
     </dependency>
-    
-    <!-- Selenium CDP v141 for Chrome 141.x -->
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-devtools-v141</artifactId>
       <scope>test</scope>
-	</dependency>
-    
+    </dependency>
     <dependency>
       <groupId>io.github.bonigarcia</groupId>
       <artifactId>webdrivermanager</artifactId>
@@ -122,14 +131,14 @@
       <scope>test</scope>
     </dependency>
     
-    <!-- AssertJ for fluent assertions -->
-	<dependency>
+    <!-- AssertJ for Fluent Assertions -->
+    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
-	</dependency>
+    </dependency>
 
-    <!-- RestAssured for REST API E2E Testing -->
+    <!-- REST-assured for REST API Testing -->
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
@@ -140,7 +149,7 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- PIT Mutation Testing -->
+        <!-- PIT Mutation Testing Configuration -->
         <plugin>
           <groupId>org.pitest</groupId>
           <artifactId>pitest-maven</artifactId>
@@ -153,7 +162,6 @@
             <targetTests>
               <param>com.attsw.bookstore.service.*Test</param>
               <param>com.attsw.bookstore.web.*Test</param>
-              
             </targetTests>
             <excludedTestClasses>
               <param>**/*IT</param>
@@ -184,8 +192,6 @@
               <outputFormat>XML</outputFormat>
             </outputFormats>
             <verbose>true</verbose>
-            <threads>2</threads>
-            <timeoutConstant>4000</timeoutConstant>
             <timestampedReports>false</timestampedReports>
           </configuration>
         </plugin>
@@ -193,7 +199,7 @@
     </pluginManagement>
 
     <plugins>
-      <!-- Build Helper -->
+      <!-- Build Helper: Add Integration and E2E Test Sources -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -214,16 +220,18 @@
         </executions>
       </plugin>
 
+      <!-- Spring Boot Maven Plugin -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
 
-      <!-- Surefire: run unit tests, exclude IT and E2E -->
+      <!-- Surefire: Unit Tests Only -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <skipTests>${skip.unit-tests}</skipTests>
           <includes>
             <include>**/*Test.java</include>
           </includes>
@@ -231,12 +239,12 @@
             <exclude>**/*IT.java</exclude>
             <exclude>**/*E2E.java</exclude>
           </excludes>
-          <forkedProcessExitTimeoutInSeconds>300</forkedProcessExitTimeoutInSeconds>
-          <shutdown>exit</shutdown> 
+          <forkedProcessExitTimeoutInSeconds>240</forkedProcessExitTimeoutInSeconds>
+          <shutdown>exit</shutdown>
         </configuration>
       </plugin>
 
-      <!-- Failsafe: run integration + e2e tests -->
+      <!-- Failsafe: Integration Tests (excludes E2E) -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -249,18 +257,19 @@
           </execution>
         </executions>
         <configuration>
+          <skipTests>${skip.integration-tests}</skipTests>
           <includes>
             <include>**/*IT.java</include>
           </includes>
           <excludes>
             <exclude>**/*E2E.java</exclude>
           </excludes>
-          <forkedProcessExitTimeoutInSeconds>300</forkedProcessExitTimeoutInSeconds>
-  		  <shutdown>exit</shutdown>
+          <forkedProcessExitTimeoutInSeconds>240</forkedProcessExitTimeoutInSeconds>
+          <shutdown>exit</shutdown>
         </configuration>
       </plugin>
 
-      <!-- JaCoCo: code coverage for unit tests -->
+      <!-- JaCoCo: Code Coverage (Unit Tests Only per Book's Rule) -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -287,7 +296,7 @@
         </executions>
       </plugin>
 
-      <!-- Coveralls Maven Plugin -->
+      <!-- Coveralls: Coverage Reporting -->
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
@@ -304,7 +313,7 @@
         </dependencies>
       </plugin>
 
-      <!-- SonarCloud Maven Plugin -->
+      <!-- SonarCloud: Static Analysis -->
       <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
@@ -315,7 +324,7 @@
 
   <!-- ===== PROFILES ===== -->
   <profiles>
-    <!-- E2E-TESTS PROFILE -->
+    <!-- E2E Tests Profile: Starts MySQL + Spring Boot + Runs Selenium Tests -->
     <profile>
       <id>e2e-tests</id>
       <activation>
@@ -324,11 +333,31 @@
       <properties>
         <skip.unit-tests>true</skip.unit-tests>
         <skip.integration-tests>true</skip.integration-tests>
-        <e2e.server.port>9090</e2e.server.port>
       </properties>
       <build>
         <plugins>
-          <!-- Start MySQL Docker Container -->
+			
+		  <!-- Build Helper: Reserve Spring Boot Port Dynamically -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>reserve-tomcat-port</id>
+                <goals>
+                  <goal>reserve-network-port</goal>
+                </goals>
+                <phase>process-resources</phase>
+                <configuration>
+                  <portNames>
+                    <portName>e2e.server.port</portName>
+                  </portNames>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>	
+			
+          <!-- Docker: Start MySQL Container -->
           <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
@@ -347,7 +376,7 @@
                 <goals>
                   <goal>stop</goal>
                 </goals>
-              </execution> 
+              </execution>
             </executions>
             <configuration>
               <images>
@@ -362,7 +391,7 @@
                       <MYSQL_PASSWORD>${mysql.password}</MYSQL_PASSWORD>
                     </env>
                     <ports>
-                      <port>${mysql.port}:3306</port>
+                      <port>mysql.mapped.port:3306</port>
                     </ports>
                     <wait>
                       <log>.*mysqld: ready for connections.*</log>
@@ -377,7 +406,7 @@
             </configuration>
           </plugin>
 
-          <!-- Start Spring Boot Application on Port 9090 -->
+          <!-- Spring Boot: Start Application -->
           <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
@@ -388,10 +417,13 @@
                   <goal>start</goal>
                 </goals>
                 <configuration>
-                  <wait>30000</wait>
-                  <maxAttempts>15</maxAttempts>
+                  <wait>60000</wait>
+                  <maxAttempts>30</maxAttempts>
                   <arguments>
                     <argument>--server.port=${e2e.server.port}</argument>
+                    <argument>--spring.datasource.url=jdbc:mysql://127.0.0.1:${mysql.mapped.port}/${mysql.database}?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC</argument>
+                    <argument>--spring.datasource.username=${mysql.username}</argument>
+                    <argument>--spring.datasource.password=${mysql.password}</argument>
                   </arguments>
                 </configuration>
               </execution>
@@ -404,7 +436,7 @@
             </executions>
           </plugin>
 
-          <!-- Run E2E Tests with Port 9090 -->
+          <!-- Failsafe: Run E2E Tests -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
@@ -416,6 +448,7 @@
                   <goal>verify</goal>
                 </goals>
                 <configuration>
+                  <skipTests>false</skipTests>
                   <includes>
                     <include>**/*E2E.java</include>
                   </includes>
@@ -425,8 +458,8 @@
                   <systemPropertyVariables>
                     <server.port>${e2e.server.port}</server.port>
                   </systemPropertyVariables>
-                  <forkedProcessExitTimeoutInSeconds>300</forkedProcessExitTimeoutInSeconds>
-					<shutdown>exit</shutdown>
+                  <forkedProcessExitTimeoutInSeconds>240</forkedProcessExitTimeoutInSeconds>
+                  <shutdown>exit</shutdown>
                 </configuration>
               </execution>
             </executions>
@@ -434,6 +467,8 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- Mutation Testing Profile: PITest Only -->
     <profile>
       <id>mutation-testing</id>
       <activation>
@@ -444,7 +479,7 @@
       </properties>
       <build>
         <plugins>
-          <!-- Skip Failsafe during mutation testing -->
+          <!-- Skip Failsafe During Mutation Testing -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
@@ -453,7 +488,7 @@
             </configuration>
           </plugin>
 
-          <!-- PIT Mutation Testing -->
+          <!-- PITest: Mutation Coverage -->
           <plugin>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-maven</artifactId>
@@ -477,7 +512,7 @@
       </build>
     </profile>
 
-    <!-- DOCKER PROFILE - For manual Docker control from Eclipse -->
+    <!-- Docker Profile: Manual MySQL Control (for Eclipse/IDE) -->
     <profile>
       <id>docker</id>
       <build>
@@ -506,7 +541,7 @@
               <images>
                 <image>
                   <name>mysql:${mysql.docker.version}</name>
-                  <alias>mysql-e2e</alias>
+                  <alias>mysql-docker</alias>
                   <run>
                     <env>
                       <MYSQL_ROOT_PASSWORD>root</MYSQL_ROOT_PASSWORD>
@@ -515,13 +550,18 @@
                       <MYSQL_PASSWORD>${mysql.password}</MYSQL_PASSWORD>
                     </env>
                     <ports>
-                      <port>${mysql.port}:3306</port>
+                      <port>mysql.mapped.port:3306</port>
                     </ports>
                     <wait>
-                      <log>.*mysqld: ready for connections.*</log>
+                      <tcp>
+                        <mode>mapped</mode>
+                        <ports>
+                          <port>3306</port>
+                        </ports>
+                      </tcp>
                       <time>120000</time>
                       <exec>
-                        <postStart>sleep 10</postStart>
+                        <postStart>sleep 30</postStart>
                       </exec>
                     </wait>
                   </run>
