@@ -68,7 +68,7 @@ jobs:
     
     # 9. Run E2E tests (separate step)
     - name: Run E2E tests
-      run: mvn -B verify -Pe2e-tests
+      run: xvfb-run mvn -B verify -Pe2e-tests
     
     # 10. Build Docker image (after all tests pass)
     - name: Build Docker image
