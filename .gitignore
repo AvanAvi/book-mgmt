@@ -15,3 +15,4 @@ Thumbs.db
 # IntelliJ (defensive)
 .idea/
 *.iml
+*.txt
