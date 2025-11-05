@@ -3,7 +3,8 @@ package com.attsw.bookstore.e2e;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
-
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,7 +79,10 @@ class BookWebE2E {
         driver.findElement(By.id("title")).sendKeys("E2E Test Book");
         driver.findElement(By.id("author")).sendKeys("E2E Author");
         driver.findElement(By.id("isbn")).sendKeys("1234567890");
-        driver.findElement(By.id("publishedDate")).sendKeys("2024-11-04");
+        WebElement createDateInput = driver.findElement(By.id("publishedDate"));
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].value = '2024-11-04';", createDateInput);
+        
         driver.findElement(By.id("available")).click(); // Check checkbox
 
         // Select first category (skip "-- No Category --")
@@ -139,8 +143,9 @@ class BookWebE2E {
             isbnInput.clear();
             isbnInput.sendKeys("9999999999");
 
-            driver.findElement(By.id("publishedDate")).clear();
-            driver.findElement(By.id("publishedDate")).sendKeys("2024-12-31");
+            WebElement editDateInput = driver.findElement(By.id("publishedDate"));
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].value = '2024-12-31';", editDateInput);
 
             // Toggle available checkbox if needed
             var availableCheckbox = driver.findElement(By.id("available"));

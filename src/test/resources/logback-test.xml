@@ -11,11 +11,13 @@
         </encoder>
     </appender>
     
-    <!-- Suppress CDP-version warnings from Selenium -->
-    <!-- 1) native Logback logger -->
-    <logger name="org.openqa.selenium.devtools.CdpVersionFinder" level="OFF"/>
-    <!-- 2) JUL→SLF4J bridge that Selenium actually uses -->
-    <logger name="org.slf4j.bridge.SLF4JBridgeHandler" level="OFF"/>
+    
+	<!-- Suppress CDP-version warnings from Selenium -->
+	<logger name="org.openqa.selenium.devtools.CdpVersionFinder" level="OFF"/>
+	<logger name="org.slf4j.bridge.SLF4JBridgeHandler" level="OFF"/>
+	<root level="INFO">
+	    <appender-ref ref="CONSOLE"/>
+	</root>
     
     <!-- Reduce Selenium/WebDriver verbosity -->
     <logger name="org.seleniumhq.selenium" level="WARN"/>
