@@ -1,4 +1,5 @@
 package com.attsw.bookstore.web;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import com.attsw.bookstore.service.CategoryService;
@@ -41,6 +42,10 @@ class BookstoreWebControllerTest {
     @Test
     void shouldReturnListBooksView() {
         Book book = Book.withTitle("Clean Code");
+        book.setAuthor("Robert Martin");
+        book.setIsbn("9780132350884");
+        book.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book.setAvailable(true);
         when(bookService.getAllBooks()).thenReturn(Arrays.asList(book));
 
         String view = controller.listBooks(model);
@@ -65,7 +70,10 @@ class BookstoreWebControllerTest {
     @Test
     void shouldSaveBookAndRedirect() {
         Book book = Book.withTitle("TDD");
-
+        book.setAuthor("Kent Beck");
+        book.setIsbn("0321146530");
+        book.setPublishedDate(LocalDate.of(2002, 11, 18));
+        book.setAvailable(true);
         String redirect = controller.saveBook(book);
 
         assertEquals("redirect:/books", redirect);
@@ -76,6 +84,10 @@ class BookstoreWebControllerTest {
     void shouldReturnEditBookView() {
         Book book = Book.withTitle("Clean Code");
         book.setId(1L);
+        book.setAuthor("Robert Martin");
+        book.setIsbn("9780132350884");
+        book.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book.setAvailable(true);
         when(bookService.getBookById(1L)).thenReturn(book);
         when(categoryService.getAllCategories()).thenReturn(Collections.emptyList());
 
@@ -91,7 +103,10 @@ class BookstoreWebControllerTest {
     @Test
     void shouldUpdateBookAndRedirect() {
         Book book = Book.withTitle("Updated");
-
+        book.setAuthor("Updated Author");
+        book.setIsbn("9999999999");
+        book.setPublishedDate(LocalDate.of(2024, 12, 31));
+        book.setAvailable(true);
         String redirect = controller.updateBook(1L, book);
 
         assertEquals("redirect:/books", redirect);

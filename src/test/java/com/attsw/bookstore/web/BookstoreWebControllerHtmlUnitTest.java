@@ -1,4 +1,5 @@
 package com.attsw.bookstore.web;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -23,12 +24,7 @@ import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.service.BookService;
 import com.attsw.bookstore.service.CategoryService;
 
-/**
- * HTMLUnit tests for BookstoreWebController.
- * Tests HTML structure and Thymeleaf templates.
- * 
- * Based on Spring Boot Unit Tests document section 4.3.2 (pages 29–38).
- */
+
 @WebMvcTest(controllers = BookstoreWebController.class)
 class BookstoreWebControllerHtmlUnitTest {
 
@@ -41,9 +37,7 @@ class BookstoreWebControllerHtmlUnitTest {
     @MockitoBean
     private CategoryService categoryService;
 
-    /** 
-     * Helper method to remove Windows carriage returns for cross-platform compatibility. 
-     */
+    
     private String removeWindowsCR(String s) {
         return s.replace("\r", "");
     }
@@ -72,15 +66,19 @@ class BookstoreWebControllerHtmlUnitTest {
     // ========== TEST 3: List with Items in Table ==========
     @Test
     void testBooksListPageWithBooks_ShouldShowThemInList() throws Exception {
-        Book book1 = Book.withTitle("Clean Code");
-        book1.setId(1L);
-        book1.setAuthor("Robert Martin");
-        book1.setIsbn("9780132350884");
+    	Book book1 = Book.withTitle("Clean Code");
+    	book1.setId(1L);
+    	book1.setAuthor("Robert Martin");
+    	book1.setIsbn("9780132350884");
+    	book1.setPublishedDate(LocalDate.of(2008, 8, 1));
+    	book1.setAvailable(true);
 
-        Book book2 = Book.withTitle("Refactoring");
-        book2.setId(2L);
-        book2.setAuthor("Martin Fowler");
-        book2.setIsbn("9780201485677");
+    	Book book2 = Book.withTitle("Refactoring");
+    	book2.setId(2L);
+    	book2.setAuthor("Martin Fowler");
+    	book2.setIsbn("9780201485677");
+    	book2.setPublishedDate(LocalDate.of(1999, 7, 8));
+    	book2.setAvailable(true);
 
         when(bookService.getAllBooks()).thenReturn(Arrays.asList(book1, book2));
 
@@ -112,6 +110,8 @@ class BookstoreWebControllerHtmlUnitTest {
         existingBook.setId(1L);
         existingBook.setAuthor("Original Author");
         existingBook.setIsbn("1234567890");
+        existingBook.setPublishedDate(LocalDate.of(2024, 1, 1));
+        existingBook.setAvailable(true);
         existingBook.setCategory(category);
 
         when(bookService.getBookById(1L)).thenReturn(existingBook);
@@ -202,11 +202,19 @@ class BookstoreWebControllerHtmlUnitTest {
     // ========== TEST 7: Edit Links in Table ==========
     @Test
     void testBooksListPageWithBooks_ShouldShowEditLinks() throws Exception {
-        Book book1 = Book.withTitle("Book 1");
-        book1.setId(1L);
+    	Book book1 = Book.withTitle("Book 1");
+    	book1.setId(1L);
+    	book1.setAuthor("Author 1");
+    	book1.setIsbn("1111111111");
+    	book1.setPublishedDate(LocalDate.of(2024, 1, 1));
+    	book1.setAvailable(true);
 
-        Book book2 = Book.withTitle("Book 2");
-        book2.setId(2L);
+    	Book book2 = Book.withTitle("Book 2");
+    	book2.setId(2L);
+    	book2.setAuthor("Author 2");
+    	book2.setIsbn("2222222222");
+    	book2.setPublishedDate(LocalDate.of(2024, 2, 1));
+    	book2.setAvailable(true);
 
         when(bookService.getAllBooks()).thenReturn(Arrays.asList(book1, book2));
 
@@ -225,7 +233,7 @@ class BookstoreWebControllerHtmlUnitTest {
         assertThat(editLink2).isNotNull();
     }
 
- // ========== BONUS TEST: Verify Form Structure ==========
+
     @Test
     void testNewBookFormHasAllRequiredFields() throws Exception {
         Category category1 = new Category();
@@ -260,13 +268,15 @@ class BookstoreWebControllerHtmlUnitTest {
         assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
 
-    // ========== BONUS TEST: Edit Form Structure ==========
+ 
     @Test
     void testEditBookFormHasAllRequiredFields() throws Exception {
         Book book = Book.withTitle("Test Book");
         book.setId(1L);
         book.setAuthor("Test Author");
         book.setIsbn("1234567890");
+        book.setPublishedDate(LocalDate.of(2024, 1, 1));
+        book.setAvailable(true);
 
         Category category = new Category();
         category.setId(1L);

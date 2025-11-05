@@ -21,6 +21,7 @@ services:
     ports:
       - "9090:9090"
     environment:
+      SERVER_PORT: 9090
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bookstore
       SPRING_DATASOURCE_USERNAME: bookstore
       SPRING_DATASOURCE_PASSWORD: bookstore

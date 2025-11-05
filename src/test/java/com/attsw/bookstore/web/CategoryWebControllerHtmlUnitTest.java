@@ -21,10 +21,7 @@ import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.service.BookService;
 import com.attsw.bookstore.service.CategoryService;
 
-/**
- * HTMLUnit tests for CategoryWebController.
- * Tests HTML structure and Thymeleaf templates for category management.
- */
+
 @WebMvcTest(controllers = CategoryWebController.class)
 class CategoryWebControllerHtmlUnitTest {
 

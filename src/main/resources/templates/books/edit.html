@@ -14,22 +14,32 @@
     
     <label>
       <span>Title:</span>
-      <input type="text" th:field="*{title}" required />
+      <input type="text" th:field="*{title}" id="title" required />
     </label>
     
     <label>
       <span>Author:</span>
-      <input type="text" th:field="*{author}" />
+      <input type="text" th:field="*{author}" id="author" />
     </label>
     
     <label>
       <span>ISBN:</span>
-      <input type="text" th:field="*{isbn}" />
+      <input type="text" th:field="*{isbn}" id="isbn" />
+    </label>
+    
+    <label>
+      <span>Published Date:</span>
+      <input type="date" th:field="*{publishedDate}" id="publishedDate" />
+    </label>
+    
+    <label>
+      <span>Available:</span>
+      <input type="checkbox" th:field="*{available}" id="available" />
     </label>
     
     <label>
       <span>Category:</span>
-      <select th:field="*{category}">
+      <select th:field="*{category}" id="category">
         <option value="">-- No Category --</option>
         <option th:each="cat : ${categories}" 
                 th:value="${cat.id}" 
