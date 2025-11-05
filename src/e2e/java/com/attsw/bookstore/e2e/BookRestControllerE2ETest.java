@@ -10,7 +10,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
 
-class BookRestControllerE2E { // NOSONAR
+class BookRestControllerE2ETest { // NOSONAR
 
 	private static int port = Integer.parseInt(System.getProperty("server.port", "9090"));
 

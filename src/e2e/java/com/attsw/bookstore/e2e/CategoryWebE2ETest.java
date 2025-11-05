@@ -18,7 +18,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
  * End-to-End test for Category Web UI.
  * Assumes Spring Boot application is ALREADY RUNNING.
  */
-class CategoryWebE2E { 
+class CategoryWebE2ETest { 
 
 	private static int port = Integer.parseInt(System.getProperty("server.port", "9090"));
 	private static String baseUrl = "http://localhost:" + port;

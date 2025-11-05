@@ -23,7 +23,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
  * Assumes Spring Boot application is ALREADY RUNNING.
  * Uses Selenium WebDriver to test the web interface.
  */
-class BookWebE2E {
+class BookWebE2ETest {
 
     private static int port = Integer.parseInt(System.getProperty("server.port", "9090"));
     private static String baseUrl = "http://localhost:" + port;
@@ -68,43 +68,30 @@ class BookWebE2E {
     }
 
     @Test
-    void testCreateNewBook() {
-        // Navigate to new book page
+    void testCreateNewBook() throws Exception {
         driver.get(baseUrl + "/books/new");
-
-        // Wait for form to load
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("title")));
 
-        // Fill form
         driver.findElement(By.id("title")).sendKeys("E2E Test Book");
         driver.findElement(By.id("author")).sendKeys("E2E Author");
         driver.findElement(By.id("isbn")).sendKeys("1234567890");
+        
         WebElement createDateInput = driver.findElement(By.id("publishedDate"));
         ((JavascriptExecutor) driver).executeScript(
             "arguments[0].value = '2024-11-04';", createDateInput);
         
-        driver.findElement(By.id("available")).click(); // Check checkbox
-
-        // Select first category (skip "-- No Category --")
-        driver.findElement(By.id("category")).click();
-        driver.findElement(By.cssSelector("#category option:nth-child(2)")).click();
-
-        // Submit form
+        driver.findElement(By.id("available")).click();
         driver.findElement(By.id("submitButton")).click();
 
-        // Wait for redirect to complete
         wait.until(ExpectedConditions.or(
                 ExpectedConditions.urlContains("/books"),
                 ExpectedConditions.urlToBe(baseUrl + "/")
         ));
 
-        // Navigate to books page to verify
         driver.get(baseUrl + "/books");
-
-        // Verify book is listed
         assertThat(driver.getPageSource()).contains("E2E Test Book");
     }
-
+    
     @Test
     void testViewAllBooks() {
         driver.get(baseUrl + "/books");

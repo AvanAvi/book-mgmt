@@ -165,13 +165,13 @@
             </targetTests>
             <excludedTestClasses>
               <param>**/*IT</param>
-              <param>**/*E2E</param>
+              <param>**/*E2ETest</param>
               <param>**/*RepositoryTest</param>
             </excludedTestClasses>
             <excludedClasses>
               <param>com.attsw.bookstore.repository.*</param>
               <param>**/*IT</param>
-              <param>**/*E2E</param>
+              <param>**/*E2ETest</param>
             </excludedClasses>
             <excludedMethods>
               <param>*toString</param>
@@ -237,7 +237,7 @@
           </includes>
           <excludes>
             <exclude>**/*IT.java</exclude>
-            <exclude>**/*E2E.java</exclude>
+            <exclude>**/*E2ETest.java</exclude>
           </excludes>
           <forkedProcessExitTimeoutInSeconds>240</forkedProcessExitTimeoutInSeconds>
           <shutdown>exit</shutdown>
@@ -262,7 +262,7 @@
             <include>**/*IT.java</include>
           </includes>
           <excludes>
-            <exclude>**/*E2E.java</exclude>
+            <exclude>**/*E2ETest.java</exclude>
           </excludes>
           <forkedProcessExitTimeoutInSeconds>240</forkedProcessExitTimeoutInSeconds>
           <shutdown>exit</shutdown>
@@ -450,7 +450,7 @@
                 <configuration>
                   <skipTests>false</skipTests>
                   <includes>
-                    <include>**/*E2E.java</include>
+				  <include>**/*E2ETest.java</include>
                   </includes>
                   <excludes>
                     <exclude>**/*IT.java</exclude>

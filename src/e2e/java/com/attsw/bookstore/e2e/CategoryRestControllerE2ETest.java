@@ -13,7 +13,7 @@ import io.restassured.http.ContentType;
  * End-to-End test for CategoryRestController.
  * Assumes Spring Boot application is ALREADY RUNNING.
  */
-class CategoryRestControllerE2E { 
+class CategoryRestControllerE2ETest { 
 
 	private static int port = Integer.parseInt(System.getProperty("server.port", "9090"));
 
