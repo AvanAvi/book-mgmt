@@ -68,7 +68,7 @@ class BookWebE2ETest {
     }
 
     @Test
-    void testCreateNewBook() throws Exception {
+    void testCreateNewBook() {
         driver.get(baseUrl + "/books/new");
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("title")));
 
