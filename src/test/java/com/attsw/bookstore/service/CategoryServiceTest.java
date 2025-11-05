@@ -3,6 +3,7 @@ package com.attsw.bookstore.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -85,6 +86,10 @@ class CategoryServiceTest {
         category.setName("Fiction");
         
         Book book = Book.withTitle("1984");
+        book.setAuthor("George Orwell");
+        book.setIsbn("9780451524935");
+        book.setPublishedDate(LocalDate.of(1949, 6, 8));
+        book.setAvailable(true);
         category.addBook(book);
         
         when(repository.findById(1L)).thenReturn(Optional.of(category));

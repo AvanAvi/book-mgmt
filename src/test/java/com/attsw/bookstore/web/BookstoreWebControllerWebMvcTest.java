@@ -1,5 +1,5 @@
 package com.attsw.bookstore.web;
-
+import java.time.LocalDate;
 import com.attsw.bookstore.service.CategoryService;
 import com.attsw.bookstore.service.BookService;
 
@@ -34,6 +34,10 @@ class BookstoreWebControllerWebMvcTest {
     @Test
     void shouldShowBookListPage() throws Exception {
         Book b = Book.withTitle("Clean Code");
+        b.setAuthor("Robert Martin");
+        b.setIsbn("9780132350884");
+        b.setPublishedDate(LocalDate.of(2008, 8, 1));
+        b.setAvailable(true);
         when(bookService.getAllBooks()).thenReturn(Arrays.asList(b));
 
         mvc.perform(get("/books"))
@@ -55,13 +59,18 @@ class BookstoreWebControllerWebMvcTest {
     void shouldSaveBookAndRedirectToList() throws Exception {
         Book saved = Book.withTitle("TDD");
         saved.setId(1L);
-
+        saved.setAuthor("Kent Beck");
+        saved.setIsbn("0321146530");
+        saved.setPublishedDate(LocalDate.of(2002, 11, 18));
+        saved.setAvailable(true);
         when(bookService.saveBook(org.mockito.ArgumentMatchers.any(Book.class))).thenReturn(saved);
 
         mvc.perform(post("/books")
                 .param("title", "TDD")
                 .param("author", "Kent")
-                .param("isbn", "123"))
+                .param("isbn", "0321146530")
+                .param("publishedDate", "2002-11-18")
+                .param("available", "true"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/books"));
     }
@@ -70,6 +79,10 @@ class BookstoreWebControllerWebMvcTest {
     void shouldShowEditBookForm() throws Exception {
         Book existing = Book.withTitle("Clean Code");
         existing.setId(1L);
+        existing.setAuthor("Robert Martin");
+        existing.setIsbn("9780132350884");
+        existing.setPublishedDate(LocalDate.of(2008, 8, 1));
+        existing.setAvailable(true);
 
         when(bookService.getBookById(1L)).thenReturn(existing);
 
@@ -84,13 +97,19 @@ class BookstoreWebControllerWebMvcTest {
     void shouldUpdateBookAndRedirectToList() throws Exception {
         Book updated = Book.withTitle("Updated Title");
         updated.setId(1L);
+        updated.setAuthor("Updated Author");
+        updated.setIsbn("9999999999");
+        updated.setPublishedDate(LocalDate.of(2024, 12, 31));
+        updated.setAvailable(true);
 
         when(bookService.updateBook(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.any(Book.class))).thenReturn(updated);
 
         mvc.perform(post("/books/1")
                 .param("title", "Updated Title")
                 .param("author", "Updated Author")
-                .param("isbn", "new456"))
+                .param("isbn", "9999999999")
+                .param("publishedDate", "2024-12-31")
+                .param("available", "true"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/books"));
     }

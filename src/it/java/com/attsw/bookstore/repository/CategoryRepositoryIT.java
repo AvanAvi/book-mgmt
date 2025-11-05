@@ -15,9 +15,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.attsw.bookstore.model.Category;
 
-/**
- * Integration test for CategoryRepository using @DataJpaTest with Testcontainers MySQL 5.7.
- */
+
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)

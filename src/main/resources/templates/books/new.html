@@ -26,8 +26,18 @@
     </label>
     
     <label>
+      <span>Published Date:</span>
+      <input type="date" th:field="*{publishedDate}" id="publishedDate" />
+    </label>
+    
+    <label>
+      <span>Available:</span>
+      <input type="checkbox" th:field="*{available}" id="available" />
+    </label>
+    
+    <label>
       <span>Category:</span>
-      <select th:field="*{category}">
+      <select th:field="*{category}" id="category">
         <option value="">-- No Category --</option>
         <option th:each="cat : ${categories}" 
                 th:value="${cat.id}" 

@@ -1,6 +1,7 @@
 package com.attsw.bookstore.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDate;
 import java.util.List;
 import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.model.Category;
@@ -14,8 +15,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-
 
 @DataJpaTest
 @Testcontainers
@@ -44,6 +43,10 @@ class BookRepositoryIT {
     @Test
     void shouldSaveAndFindBook() {
         Book book = Book.withTitle("Clean Code");
+        book.setAuthor("Robert Martin");
+        book.setIsbn("9780132350884");
+        book.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book.setAvailable(true);
 
         Book saved = repository.save(book);
 
@@ -54,7 +57,16 @@ class BookRepositoryIT {
     @Test
     void shouldFindAllBooks() {
         Book book1 = Book.withTitle("Clean Code");
+        book1.setAuthor("Robert Martin");
+        book1.setIsbn("9780132350884");
+        book1.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book1.setAvailable(true);
+        
         Book book2 = Book.withTitle("Refactoring");
+        book2.setAuthor("Martin Fowler");
+        book2.setIsbn("9780201485677");
+        book2.setPublishedDate(LocalDate.of(1999, 7, 8));
+        book2.setAvailable(true);
 
         repository.save(book1);
         repository.save(book2);
@@ -65,6 +77,11 @@ class BookRepositoryIT {
     @Test
     void shouldFindBookById() {
         Book book = Book.withTitle("Clean Code");
+        book.setAuthor("Robert Martin");
+        book.setIsbn("9780132350884");
+        book.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book.setAvailable(true);
+        
         Book saved = repository.save(book);
 
         assertTrue(repository.findById(saved.getId()).isPresent());
@@ -74,6 +91,11 @@ class BookRepositoryIT {
     @Test
     void shouldDeleteBook() {
         Book book = Book.withTitle("Clean Code");
+        book.setAuthor("Robert Martin");
+        book.setIsbn("9780132350884");
+        book.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book.setAvailable(true);
+        
         Book saved = repository.save(book);
 
         repository.deleteById(saved.getId());
@@ -90,10 +112,23 @@ class BookRepositoryIT {
         
         // Create books - one with category, two without
         Book bookWithCategory = Book.withTitle("1984");
+        bookWithCategory.setAuthor("George Orwell");
+        bookWithCategory.setIsbn("9780451524935");
+        bookWithCategory.setPublishedDate(LocalDate.of(1949, 6, 8));
+        bookWithCategory.setAvailable(true);
         bookWithCategory.setCategory(savedCategory);
         
         Book uncategorized1 = Book.withTitle("Clean Code");
+        uncategorized1.setAuthor("Robert Martin");
+        uncategorized1.setIsbn("9780132350884");
+        uncategorized1.setPublishedDate(LocalDate.of(2008, 8, 1));
+        uncategorized1.setAvailable(true);
+        
         Book uncategorized2 = Book.withTitle("Refactoring");
+        uncategorized2.setAuthor("Martin Fowler");
+        uncategorized2.setIsbn("9780201485677");
+        uncategorized2.setPublishedDate(LocalDate.of(1999, 7, 8));
+        uncategorized2.setAvailable(true);
         
         repository.save(bookWithCategory);
         repository.save(uncategorized1);

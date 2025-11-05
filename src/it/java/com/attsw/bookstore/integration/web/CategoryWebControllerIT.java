@@ -1,4 +1,5 @@
 package com.attsw.bookstore.integration.web;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -151,6 +152,9 @@ class CategoryWebControllerIT {
         Book book = new Book();
         book.setTitle("Book in Category");
         book.setAuthor("Test Author");
+        book.setIsbn("1234567890");
+        book.setPublishedDate(LocalDate.of(2024, 1, 15));
+        book.setAvailable(true);
         book.setCategory(category);
         bookRepository.save(book);
         

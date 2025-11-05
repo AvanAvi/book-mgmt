@@ -9,11 +9,7 @@ import org.junit.jupiter.api.Test;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
-/**
- * End-to-End test for BookRestController.
- * Assumes Spring Boot application is ALREADY RUNNING on the specified port.
- * No Spring annotations - this is a plain JUnit test.
- */
+
 class BookRestControllerE2E { // NOSONAR
 
 	private static int port = Integer.parseInt(System.getProperty("server.port", "9090"));
@@ -49,7 +45,12 @@ class BookRestControllerE2E { // NOSONAR
 
 		// Create a book with that category
 		String bookJson = String.format(
-			"{\"title\":\"E2E Test Book\",\"category\":{\"id\":%d}}",
+			"{\"title\":\"E2E Test Book\"," +
+			"\"author\":\"E2E Author\"," +
+			"\"isbn\":\"1234567890\"," +
+			"\"publishedDate\":\"2024-11-04\"," +
+			"\"available\":true," +
+			"\"category\":{\"id\":%d}}",
 			categoryId
 		);
 
@@ -61,6 +62,9 @@ class BookRestControllerE2E { // NOSONAR
 		.then()
 			.statusCode(201)
 			.body("title", equalTo("E2E Test Book"))
+			.body("author", equalTo("E2E Author"))
+			.body("isbn", equalTo("1234567890"))
+			.body("available", equalTo(true))
 			.body("category.id", equalTo(categoryId))
 			.extract().path("id");
 
@@ -72,7 +76,10 @@ class BookRestControllerE2E { // NOSONAR
 		.then()
 			.statusCode(200)
 			.body("id", equalTo(bookId))
-			.body("title", equalTo("E2E Test Book"));
+			.body("title", equalTo("E2E Test Book"))
+			.body("author", equalTo("E2E Author"))
+			.body("isbn", equalTo("1234567890"))
+			.body("available", equalTo(true));
 	}
 
 	@Test
@@ -89,7 +96,12 @@ class BookRestControllerE2E { // NOSONAR
 
 		// Create book
 		String bookJson = String.format(
-			"{\"title\":\"Original Title\",\"category\":{\"id\":%d}}",
+			"{\"title\":\"Original Title\"," +
+			"\"author\":\"Original Author\"," +
+			"\"isbn\":\"0000000000\"," +
+			"\"publishedDate\":\"2023-01-01\"," +
+			"\"available\":false," +
+			"\"category\":{\"id\":%d}}",
 			categoryId
 		);
 
@@ -104,7 +116,12 @@ class BookRestControllerE2E { // NOSONAR
 
 		// Update book
 		String updateJson = String.format(
-			"{\"title\":\"Updated Title\",\"category\":{\"id\":%d}}",
+			"{\"title\":\"Updated Title\"," +
+			"\"author\":\"Updated Author\"," +
+			"\"isbn\":\"9999999999\"," +
+			"\"publishedDate\":\"2024-12-31\"," +
+			"\"available\":true," +
+			"\"category\":{\"id\":%d}}",
 			categoryId
 		);
 
@@ -115,7 +132,10 @@ class BookRestControllerE2E { // NOSONAR
 			.put("/api/books/" + bookId)
 		.then()
 			.statusCode(200)
-			.body("title", equalTo("Updated Title"));
+			.body("title", equalTo("Updated Title"))
+			.body("author", equalTo("Updated Author"))
+			.body("isbn", equalTo("9999999999"))
+			.body("available", equalTo(true));
 	}
 
 	@Test
@@ -132,7 +152,12 @@ class BookRestControllerE2E { // NOSONAR
 
 		// Create book
 		String bookJson = String.format(
-			"{\"title\":\"Book To Delete\",\"category\":{\"id\":%d}}",
+			"{\"title\":\"Book To Delete\"," +
+			"\"author\":\"Delete Author\"," +
+			"\"isbn\":\"0000000000\"," +
+			"\"publishedDate\":\"2024-01-01\"," +
+			"\"available\":true," +
+			"\"category\":{\"id\":%d}}",
 			categoryId
 		);
 

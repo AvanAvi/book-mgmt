@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.attsw.bookstore.model.Category; 
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.List;
@@ -29,7 +30,17 @@ class BookServiceTest {
     @Test
     void shouldGetAllBooks() {
         Book book1 = Book.withTitle("Clean Code");
+        book1.setAuthor("Robert Martin");
+        book1.setIsbn("9780132350884");
+        book1.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book1.setAvailable(true);
+        
         Book book2 = Book.withTitle("Refactoring");
+        book2.setAuthor("Martin Fowler");
+        book2.setIsbn("9780201485677");
+        book2.setPublishedDate(LocalDate.of(1999, 7, 8));
+        book2.setAvailable(true);
+        
         when(repository.findAll()).thenReturn(Arrays.asList(book1, book2));
 
         assertEquals(2, service.getAllBooks().size());
@@ -39,6 +50,11 @@ class BookServiceTest {
     @Test
     void shouldGetBookById() {
         Book book = Book.withTitle("Clean Code");
+        book.setAuthor("Robert Martin");
+        book.setIsbn("9780132350884");
+        book.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book.setAvailable(true);
+        
         when(repository.findById(1L)).thenReturn(Optional.of(book));
 
         Book found = service.getBookById(1L);
@@ -57,8 +73,17 @@ class BookServiceTest {
     @Test
     void shouldSaveBook() {
         Book book = Book.withTitle("Clean Code");
+        book.setAuthor("Robert Martin");
+        book.setIsbn("9780132350884");
+        book.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book.setAvailable(true);
+        
         Book saved = Book.withTitle("Clean Code");
         saved.setId(1L);
+        saved.setAuthor("Robert Martin");
+        saved.setIsbn("9780132350884");
+        saved.setPublishedDate(LocalDate.of(2008, 8, 1));
+        saved.setAvailable(true);
         
         when(repository.save(book)).thenReturn(saved);
 
@@ -74,6 +99,8 @@ class BookServiceTest {
         existing.setId(1L);
         existing.setAuthor("Old Author");
         existing.setIsbn("Old ISBN");
+        existing.setPublishedDate(LocalDate.of(2023, 1, 1));
+        existing.setAvailable(false);
         
         Category oldCategory = new Category();
         oldCategory.setId(1L);
@@ -83,6 +110,8 @@ class BookServiceTest {
         Book updates = Book.withTitle("New Title");
         updates.setAuthor("New Author");
         updates.setIsbn("New ISBN");
+        updates.setPublishedDate(LocalDate.of(2024, 12, 31));
+        updates.setAvailable(true);
         
         Category newCategory = new Category();
         newCategory.setId(2L);
@@ -97,6 +126,8 @@ class BookServiceTest {
         assertEquals("New Title", result.getTitle());
         assertEquals("New Author", result.getAuthor());
         assertEquals("New ISBN", result.getIsbn());
+        assertEquals(LocalDate.of(2024, 12, 31), result.getPublishedDate());
+        assertTrue(result.isAvailable());
         assertEquals(newCategory, result.getCategory());
         verify(repository).findById(1L);
         verify(repository).save(existing);
@@ -122,7 +153,17 @@ class BookServiceTest {
     @Test
     void shouldGetUncategorizedBooks() {
         Book book1 = Book.withTitle("Clean Code");
+        book1.setAuthor("Robert Martin");
+        book1.setIsbn("9780132350884");
+        book1.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book1.setAvailable(true);
+        
         Book book2 = Book.withTitle("Refactoring");
+        book2.setAuthor("Martin Fowler");
+        book2.setIsbn("9780201485677");
+        book2.setPublishedDate(LocalDate.of(1999, 7, 8));
+        book2.setAvailable(true);
+        
         when(repository.findByCategoryIsNull()).thenReturn(Arrays.asList(book1, book2));
 
         List<Book> result = service.getUncategorizedBooks();

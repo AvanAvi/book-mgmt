@@ -1,5 +1,5 @@
 package com.attsw.bookstore.web;
-
+import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -111,6 +111,10 @@ class CategoryWebControllerTest {
         category.setId(1L);
         category.setName("Fiction");
         Book book = Book.withTitle("1984");
+        book.setAuthor("George Orwell");
+        book.setIsbn("9780451524935");
+        book.setPublishedDate(LocalDate.of(1949, 6, 8));
+        book.setAvailable(true);
         category.addBook(book);
         
         when(categoryService.hasBooks(1L)).thenReturn(true);

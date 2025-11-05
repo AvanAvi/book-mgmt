@@ -11,6 +11,14 @@
         </encoder>
     </appender>
     
+    
+	<!-- Suppress CDP-version warnings from Selenium -->
+	<logger name="org.openqa.selenium.devtools.CdpVersionFinder" level="OFF"/>
+	<logger name="org.slf4j.bridge.SLF4JBridgeHandler" level="OFF"/>
+	<root level="INFO">
+	    <appender-ref ref="CONSOLE"/>
+	</root>
+    
     <!-- Reduce Selenium/WebDriver verbosity -->
     <logger name="org.seleniumhq.selenium" level="WARN"/>
     <logger name="org.openqa.selenium" level="WARN"/>
@@ -26,7 +34,7 @@
     <logger name="com.github.dockerjava.core" level="WARN"/>
     
     <!-- Reduce Hibernate/JPA verbosity in tests -->
-    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.hibernate" level="ERROR"/>
     <logger name="org.hibernate.SQL" level="WARN"/>
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
     
@@ -34,6 +42,9 @@
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.springframework.web" level="WARN"/>
     <logger name="org.springframework.boot" level="WARN"/>
+    
+    <!-- Silence the 404-resolution warnings from the E2E negative tests -->
+    <logger name="org.springframework.web.server.ResponseStatusExceptionResolver" level="ERROR"/>
     
     <!-- Reduce HikariCP connection pool verbosity -->
     <logger name="com.zaxxer.hikari" level="WARN"/>

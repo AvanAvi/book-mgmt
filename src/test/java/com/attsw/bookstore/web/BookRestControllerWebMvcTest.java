@@ -1,4 +1,5 @@
 package com.attsw.bookstore.web;  
+import java.time.LocalDate;
 
 import static org.mockito.Mockito.when;
 
@@ -33,6 +34,10 @@ class BookRestControllerWebMvcTest {
     @Test
     void shouldReturnJsonListOfBooks() throws Exception {
         Book b = Book.withTitle("Clean Code");
+        b.setAuthor("Robert Martin");
+        b.setIsbn("9780132350884");
+        b.setPublishedDate(LocalDate.of(2008, 8, 1));
+        b.setAvailable(true);
         when(bookService.getAllBooks()).thenReturn(Arrays.asList(b));
 
         mvc.perform(get("/api/books"))
@@ -46,6 +51,8 @@ class BookRestControllerWebMvcTest {
         saved.setId(1L);
         saved.setAuthor("Martin Fowler");
         saved.setIsbn("0201485672");
+        saved.setPublishedDate(LocalDate.of(1999, 7, 8));
+        saved.setAvailable(true);
 
         when(bookService.saveBook(org.mockito.ArgumentMatchers.any(Book.class))).thenReturn(saved);
 
@@ -55,7 +62,9 @@ class BookRestControllerWebMvcTest {
                     {
                       "title": "Refactoring",
                       "author": "Martin Fowler",
-                      "isbn": "0201485672"
+                      "isbn": "0201485672",
+                      "publishedDate": "1999-07-08",
+                	  "available": true
                     }
                     """))
             .andExpect(status().isCreated())
@@ -66,6 +75,10 @@ class BookRestControllerWebMvcTest {
     void shouldReturnSingleBookById() throws Exception {
         Book saved = Book.withTitle("Clean Code");
         saved.setId(1L);
+        saved.setAuthor("Robert Martin");
+        saved.setIsbn("9780132350884");
+        saved.setPublishedDate(LocalDate.of(2008, 8, 1));
+        saved.setAvailable(true);
 
         when(bookService.getBookById(1L)).thenReturn(saved);
 
@@ -80,7 +93,8 @@ class BookRestControllerWebMvcTest {
         updated.setId(1L);
         updated.setAuthor("New Author");
         updated.setIsbn("1111111111");
-
+        updated.setPublishedDate(LocalDate.of(2024, 12, 31));
+        updated.setAvailable(true);
         when(bookService.updateBook(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.any(Book.class))).thenReturn(updated);
 
         mvc.perform(put("/api/books/1")
@@ -89,7 +103,9 @@ class BookRestControllerWebMvcTest {
                     {
                       "title": "New Title",
                       "author": "New Author",
-                      "isbn": "1111111111"
+                      "isbn": "1111111111",
+                      "publishedDate": "2024-12-31",
+                	  "available": true
                     }
                     """))
             .andExpect(status().isOk())

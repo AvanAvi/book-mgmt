@@ -21,8 +21,9 @@ services:
     ports:
       - "9090:9090"
     environment:
+      SERVER_PORT: 9090
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bookstore
       SPRING_DATASOURCE_USERNAME: bookstore
       SPRING_DATASOURCE_PASSWORD: bookstore
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop 

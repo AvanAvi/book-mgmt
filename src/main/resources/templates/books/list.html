@@ -18,6 +18,9 @@
       <strong th:text="${book.title}">Title</strong> - 
       <span th:text="${book.author}">Author</span> - 
       <span th:text="${book.isbn}">ISBN</span>
+      <span th:if="${book.publishedDate != null}" th:text="' (Published: ' + ${book.publishedDate} + ')'">Date</span>
+      <span th:text="${book.available ? '✓ Available' : '✗ Unavailable'}" 
+            th:class="${book.available ? 'badge-success' : 'badge-warning'}">Status</span>
       <span th:if="${book.category != null}" class="category-badge">
         <span th:text="${book.category.name}">Category</span>
       </span>

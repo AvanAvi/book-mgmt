@@ -1,4 +1,5 @@
 package com.attsw.bookstore.integration.rest;
+import java.time.LocalDate;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,9 +25,7 @@ import com.attsw.bookstore.repository.CategoryRepository;
 
 import io.restassured.RestAssured;
 
-/**
- * TRUE Integration Test for CategoryRestController with real MySQL 5.7 database.
- */
+
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Testcontainers
 class CategoryRestControllerIT {
@@ -183,6 +182,10 @@ class CategoryRestControllerIT {
 
 		Book book = new Book();
 		book.setTitle("Book");
+		book.setAuthor("Test Author");
+		book.setIsbn("1234567890");
+		book.setPublishedDate(LocalDate.of(2024, 1, 15));
+		book.setAvailable(true);
 		book.setCategory(category);
 		bookRepository.save(book);
 
