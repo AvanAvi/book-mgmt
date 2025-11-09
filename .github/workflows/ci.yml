@@ -1,11 +1,9 @@
 name: Java CI with Maven
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,23 +37,28 @@ jobs:
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
     
-    # 5. Run unit and integration tests 
+    # 5. Run unit and integration tests (without coverage)
     - name: Run unit and integration tests
       run: mvn -B clean verify
     
-    # 6. Upload coverage to Coveralls (immediately after tests)
+    # 6. Run unit tests with JaCoCo coverage (for Coveralls - push only)
+    - name: Generate JaCoCo coverage
+      run: mvn -B clean test -Pjacoco
+      if: ${{ success() && github.event_name == 'push' }}
+    
+    # 7. Upload coverage to Coveralls
     - name: Upload coverage to Coveralls
       run: mvn -B coveralls:report
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
       if: ${{ success() && github.event_name == 'push' }}
     
-    # 7. Generate test reports (always, even on failure)
+    # 8. Generate test reports (always, even on failure)
     - name: Generate JUnit Report
       run: mvn -B surefire-report:report-only
       if: ${{ always() }}
     
-    # 8. Archive test reports as artifacts
+    # 9. Archive test reports as artifacts
     - name: Archive Test Reports
       uses: actions/upload-artifact@v4
       if: ${{ always() }}
@@ -66,15 +69,15 @@ jobs:
           **/target/surefire-reports
           **/target/failsafe-reports
     
-    # 9. Run E2E tests (separate step)
+    # 10. Run E2E tests (separate step)
     - name: Run E2E tests
       run: xvfb-run mvn -B verify -Pe2e-tests
     
-    # 10. Build Docker image (after all tests pass)
+    # 11. Build Docker image (after all tests pass)
     - name: Build Docker image
       run: docker build -t bookstore-management-tdd:${{ github.sha }} .
     
-    # 11. SonarCloud analysis (last)
+    # 12. SonarCloud analysis (last)
     - name: SonarCloud analysis
       run: mvn -B sonar:sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }}
       env:
