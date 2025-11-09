@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0 "
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance "
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0  
-                             https://maven.apache.org/xsd/maven-4.0.0.xsd ">
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -25,7 +25,7 @@
 
     <!-- SonarCloud Configuration -->
     <sonar.organization>avanavi</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io </sonar.host.url>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.projectKey>AvanAvi_book-mgmt</sonar.projectKey>
     <sonar.coverage.exclusions>
       **/BookstoreManagementTddApplication.*,
@@ -53,7 +53,7 @@
     <mysql.password>bookstore_pass</mysql.password>
     
     <!-- Selenium Version -->
-    <selenium.version>4.37.0</selenium.version>
+    <selenium.version>4.38.0</selenium.version>
   </properties>
 
   <dependencies>
@@ -119,11 +119,8 @@
       <artifactId>selenium-java</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-devtools-v141</artifactId>
-      <scope>test</scope>
-    </dependency>
+   
+    
     <dependency>
       <groupId>io.github.bonigarcia</groupId>
       <artifactId>webdrivermanager</artifactId>
@@ -269,33 +266,6 @@
         </configuration>
       </plugin>
 
-      <!-- JaCoCo: Code Coverage (Unit Tests Only per Book's Rule) -->
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.11</version>
-        <configuration>
-          <excludes>
-            <exclude>**/BookstoreManagementTddApplication.*</exclude>
-            <exclude>**/model/**</exclude>
-          </excludes>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>test</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Coveralls: Coverage Reporting -->
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
@@ -324,7 +294,48 @@
 
   <!-- ===== PROFILES ===== -->
   <profiles>
-    <!-- E2E Tests Profile: Starts MySQL + Spring Boot + Runs Selenium Tests -->
+
+   <!-- JaCoCo Profile: Only runs when -Pjacoco is specified -->
+	<profile>
+	  <id>jacoco</id>
+	  <activation>
+	    <activeByDefault>false</activeByDefault>
+	  </activation>
+	  <build>
+	    <plugins>
+	      <plugin>
+	        <groupId>org.jacoco</groupId>
+	        <artifactId>jacoco-maven-plugin</artifactId>
+	        <version>0.8.11</version>
+	        <configuration>
+	          <excludes>
+	            <exclude>**/BookstoreManagementTddApplication.*</exclude>
+	            <exclude>**/model/**</exclude>
+	            <!-- Exclude HTMLUnit library classes from instrumentation -->
+	            <exclude>org/htmlunit/**</exclude>
+	          </excludes>
+	        </configuration>
+	        <executions>
+	          <execution>
+	            <id>jacoco-prepare-agent</id>
+	            <goals>
+	              <goal>prepare-agent</goal>
+	            </goals>
+	          </execution>
+	          <execution>
+	            <id>jacoco-report</id>
+	            <phase>test</phase>
+	            <goals>
+	              <goal>report</goal>
+	            </goals>
+	          </execution>
+	        </executions>
+	      </plugin>
+	    </plugins>
+	  </build>
+	</profile>
+
+    <!-- E2E Tests Profile -->
     <profile>
       <id>e2e-tests</id>
       <activation>
@@ -336,27 +347,6 @@
       </properties>
       <build>
         <plugins>
-			
-		  <!-- Build Helper: Reserve Spring Boot Port Dynamically -->
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>reserve-tomcat-port</id>
-                <goals>
-                  <goal>reserve-network-port</goal>
-                </goals>
-                <phase>process-resources</phase>
-                <configuration>
-                  <portNames>
-                    <portName>e2e.server.port</portName>
-                  </portNames>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>	
-			
           <!-- Docker: Start MySQL Container -->
           <plugin>
             <groupId>io.fabric8</groupId>
@@ -391,7 +381,7 @@
                       <MYSQL_PASSWORD>${mysql.password}</MYSQL_PASSWORD>
                     </env>
                     <ports>
-                      <port>mysql.mapped.port:3306</port>
+                      <port>3308:3306</port>
                     </ports>
                     <wait>
                       <log>.*mysqld: ready for connections.*</log>
@@ -418,10 +408,10 @@
                 </goals>
                 <configuration>
                   <wait>60000</wait>
-                  <maxAttempts>30</maxAttempts>
+                  <maxAttempts>180</maxAttempts>
                   <arguments>
-                    <argument>--server.port=${e2e.server.port}</argument>
-                    <argument>--spring.datasource.url=jdbc:mysql://127.0.0.1:${mysql.mapped.port}/${mysql.database}?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC</argument>
+                    <argument>--server.port=9090</argument>
+                    <argument>--spring.datasource.url=jdbc:mysql://127.0.0.1:3308/${mysql.database}</argument>
                     <argument>--spring.datasource.username=${mysql.username}</argument>
                     <argument>--spring.datasource.password=${mysql.password}</argument>
                   </arguments>
@@ -450,13 +440,13 @@
                 <configuration>
                   <skipTests>false</skipTests>
                   <includes>
-				  <include>**/*E2ETest.java</include>
+                    <include>**/*E2ETest.java</include>
                   </includes>
                   <excludes>
                     <exclude>**/*IT.java</exclude>
                   </excludes>
                   <systemPropertyVariables>
-                    <server.port>${e2e.server.port}</server.port>
+                    <server.port>9090</server.port>
                   </systemPropertyVariables>
                   <forkedProcessExitTimeoutInSeconds>240</forkedProcessExitTimeoutInSeconds>
                   <shutdown>exit</shutdown>
@@ -468,7 +458,7 @@
       </build>
     </profile>
 
-    <!-- Mutation Testing Profile: PITest Only -->
+    <!-- Mutation Testing Profile -->
     <profile>
       <id>mutation-testing</id>
       <activation>
@@ -512,7 +502,7 @@
       </build>
     </profile>
 
-    <!-- Docker Profile: Manual MySQL Control (for Eclipse/IDE) -->
+    <!-- Docker Profile -->
     <profile>
       <id>docker</id>
       <build>
@@ -541,7 +531,7 @@
               <images>
                 <image>
                   <name>mysql:${mysql.docker.version}</name>
-                  <alias>mysql-docker</alias>
+                  <alias>mysql</alias>
                   <run>
                     <env>
                       <MYSQL_ROOT_PASSWORD>root</MYSQL_ROOT_PASSWORD>
@@ -550,15 +540,10 @@
                       <MYSQL_PASSWORD>${mysql.password}</MYSQL_PASSWORD>
                     </env>
                     <ports>
-                      <port>mysql.mapped.port:3306</port>
+                      <port>3308:3306</port>
                     </ports>
                     <wait>
-                      <tcp>
-                        <mode>mapped</mode>
-                        <ports>
-                          <port>3306</port>
-                        </ports>
-                      </tcp>
+                      <log>.*mysqld: ready for connections.*</log>
                       <time>120000</time>
                       <exec>
                         <postStart>sleep 30</postStart>

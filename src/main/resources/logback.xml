@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    
+    <!-- Bridge java.util.logging to SLF4J for Selenium -->
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+    
+    <!-- Suppress Selenium CDP warnings -->
+    <logger name="org.openqa.selenium.devtools.CdpVersionFinder" level="OFF"/>
+    <logger name="org.openqa.selenium.chromium.ChromiumDriver" level="OFF"/>
+    
+    
+    <!-- Suppress 404 warnings from negative test cases -->
+	<logger name="org.springframework.web.server.ResponseStatusExceptionResolver" level="ERROR"/>
+
+    
+    <!-- Suppress Hibernate dialect warnings -->
+    <logger name="org.hibernate.dialect.Dialect" level="ERROR"/>
+    <logger name="org.hibernate.orm.deprecation" level="ERROR"/>
+    
+    <!-- Application logs -->
+    <logger name="com.attsw.bookstore" level="INFO"/>
+    
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

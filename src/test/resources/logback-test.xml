@@ -11,13 +11,9 @@
         </encoder>
     </appender>
     
-    
-	<!-- Suppress CDP-version warnings from Selenium -->
-	<logger name="org.openqa.selenium.devtools.CdpVersionFinder" level="OFF"/>
-	<logger name="org.slf4j.bridge.SLF4JBridgeHandler" level="OFF"/>
-	<root level="INFO">
-	    <appender-ref ref="CONSOLE"/>
-	</root>
+    <!-- Suppress CDP-version warnings from Selenium -->
+    <logger name="org.openqa.selenium.devtools.CdpVersionFinder" level="OFF"/>
+    <logger name="org.slf4j.bridge.SLF4JBridgeHandler" level="OFF"/>
     
     <!-- Reduce Selenium/WebDriver verbosity -->
     <logger name="org.seleniumhq.selenium" level="WARN"/>
@@ -37,6 +33,9 @@
     <logger name="org.hibernate" level="ERROR"/>
     <logger name="org.hibernate.SQL" level="WARN"/>
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
+    <logger name="org.hibernate.tool.schema" level="ERROR"/>
+    <logger name="org.hibernate.tool.schema.spi" level="ERROR"/>
+    <logger name="org.hibernate.tool.schema.internal" level="ERROR"/>
     
     <!-- Reduce Spring Framework verbosity -->
     <logger name="org.springframework" level="WARN"/>
@@ -47,13 +46,17 @@
     <logger name="org.springframework.web.server.ResponseStatusExceptionResolver" level="ERROR"/>
     
     <!-- Reduce HikariCP connection pool verbosity -->
+    <logger name="com.zaxxer.hikari.pool" level="ERROR"/>
     <logger name="com.zaxxer.hikari" level="WARN"/>
+    
+    <!-- Suppress SQL syntax errors -->
+    <logger name="java.sql.SQLSyntaxErrorException" level="OFF"/>
     
     <!-- Keep application logs at INFO level -->
     <logger name="com.attsw.bookstore" level="INFO"/>
     
-    <!-- Root logger at INFO level -->
-    <root level="INFO">
+    <!-- Root logger at WARN level -->
+    <root level="WARN">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
