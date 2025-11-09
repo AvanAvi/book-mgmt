@@ -1,4 +1,3 @@
-
 package com.attsw.bookstore.e2e;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,8 +14,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 /**
- * End-to-End test for Category Web UI.
- * Assumes Spring Boot application is ALREADY RUNNING.
+ * End-to-end tests for Category Web UI using Selenium WebDriver.
+ * Requires the Spring Boot application to be running.
  */
 class CategoryWebE2ETest { 
 
@@ -46,6 +45,9 @@ class CategoryWebE2ETest {
 		}
 	}
 
+	/**
+	 * Tests navigation to the categories page.
+	 */
 	@Test
 	void testNavigateToCategoriesPage() {
 		driver.get(baseUrl);
@@ -53,14 +55,18 @@ class CategoryWebE2ETest {
 		assertThat(driver.getCurrentUrl()).contains("/categories");
 	}
 
+	/**
+	 * Tests viewing the categories list page.
+	 */
 	@Test
 	void testViewAllCategories() {
 		driver.get(baseUrl + "/categories");
-		
-		// Verify categories table exists
 		assertThat(driver.findElements(By.id("categoriesTable"))).isNotEmpty();
 	}
 
+	/**
+	 * Tests creating a new category through the web form.
+	 */
 	@Test
 	void testCreateNewCategory() {
 		// Navigate to new category page
@@ -72,25 +78,28 @@ class CategoryWebE2ETest {
 		// Submit form
 		driver.findElement(By.id("submitButton")).click();
 
-		// Verify redirect to categories page and category is listed
+		// Verify redirect and category is listed
 		assertThat(driver.getCurrentUrl()).contains("/categories");
 		assertThat(driver.getPageSource()).contains("E2E Test Category");
 	}
 
+	/**
+	 * Tests editing an existing category through the web form.
+	 */
 	@Test
 	void testEditCategory() {
 		driver.get(baseUrl + "/categories");
 
-		// Find first edit button (if exists)
+		// Find first edit button if exists
 		var editButtons = driver.findElements(By.cssSelector("a[href*='/categories/edit/']"));
 		
 		if (!editButtons.isEmpty()) {
 			editButtons.get(0).click();
 
-			// Verify we're on edit page
+			// Verify on edit page
 			assertThat(driver.getCurrentUrl()).contains("/categories/edit/");
 
-			// Change name
+			// Update name
 			var nameInput = driver.findElement(By.id("name"));
 			nameInput.clear();
 			nameInput.sendKeys("Updated E2E Category");
@@ -98,11 +107,14 @@ class CategoryWebE2ETest {
 			// Submit
 			driver.findElement(By.id("submitButton")).click();
 
-			// Verify redirect and update
+			// Verify update
 			assertThat(driver.getPageSource()).contains("Updated E2E Category");
 		}
 	}
 
+	/**
+	 * Tests deleting a category and verifying the count decreases.
+	 */
 	@Test
 	void testDeleteCategory() {
 		driver.get(baseUrl + "/categories");
@@ -112,7 +124,6 @@ class CategoryWebE2ETest {
 		int countBefore = deleteButtonsBefore.size();
 
 		if (countBefore > 0) {
-			// Click first delete button
 			deleteButtonsBefore.get(0).click();
 
 			// Accept confirmation dialog
@@ -125,20 +136,22 @@ class CategoryWebE2ETest {
 			var deleteButtonsAfter = driver.findElements(By.cssSelector("button[onclick*='deleteCategory']"));
 			int countAfter = deleteButtonsAfter.size();
 
-			// Verify one less category
+			// Verify deletion
 			assertThat(countAfter).isLessThan(countBefore);
 		}
 	}
 
+	/**
+	 * Tests that categories with associated books display a warning.
+	 */
 	@Test
 	void testCannotDeleteCategoryWithBooks() {
 		driver.get(baseUrl + "/categories");
 
-		// Find a category that has books (look for disabled delete buttons or warning)
+		// Find warning for categories with books
 		var warningElements = driver.findElements(By.cssSelector(".category-has-books-warning"));
 		
 		if (!warningElements.isEmpty()) {
-			// Verify warning message is displayed
 			assertThat(warningElements.get(0).getText()).contains("has books");
 		}
 	}

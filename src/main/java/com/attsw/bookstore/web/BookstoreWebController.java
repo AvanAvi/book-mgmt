@@ -9,6 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * Web controller for book-related Thymeleaf views.
+ */
 @Controller
 public class BookstoreWebController {
 

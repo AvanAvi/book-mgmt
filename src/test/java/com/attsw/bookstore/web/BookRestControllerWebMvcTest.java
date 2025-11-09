@@ -1,8 +1,7 @@
-package com.attsw.bookstore.web;  
+package com.attsw.bookstore.web;
+
 import java.time.LocalDate;
-
 import static org.mockito.Mockito.when;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,6 +21,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.service.BookService;
 
+/**
+ * MVC slice tests for {@link BookRestController}.
+ */
 @WebMvcTest(BookRestController.class)
 class BookRestControllerWebMvcTest {
 

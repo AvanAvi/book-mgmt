@@ -27,6 +27,9 @@ import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.repository.BookRepository;
 import com.attsw.bookstore.repository.CategoryRepository;
 
+/**
+ * Integration tests for book web flows using Testcontainers MySQL.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
@@ -55,7 +58,6 @@ class BookstoreWebControllerIT {
 
     @Test
     void testGetAllBooks() throws Exception {
-        // Given
         Category category = new Category();
         category.setName("Fiction");
         categoryRepository.save(category);
@@ -69,7 +71,6 @@ class BookstoreWebControllerIT {
         book.setCategory(category);
         bookRepository.save(book);
 
-        // When/Then
         mockMvc.perform(get("/books"))
             .andExpect(status().isOk())
             .andExpect(view().name("books/list"))
@@ -89,12 +90,10 @@ class BookstoreWebControllerIT {
 
     @Test
     void testCreateBook() throws Exception {
-        // Given
         Category category = new Category();
         category.setName("Science");
         category = categoryRepository.save(category);
 
-        // When/Then
         mockMvc.perform(post("/books")
                 .param("title", "New Book")
                 .param("author", "New Author")
@@ -105,7 +104,6 @@ class BookstoreWebControllerIT {
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/books"));
 
-        // Verify
         assertThat(bookRepository.findAll()).hasSize(1);
         Book savedBook = bookRepository.findAll().get(0);
         assertThat(savedBook.getTitle()).isEqualTo("New Book");
@@ -117,7 +115,6 @@ class BookstoreWebControllerIT {
 
     @Test
     void testShowEditBookForm() throws Exception {
-        // Given
         Book book = new Book();
         book.setTitle("Edit Test");
         book.setAuthor("Edit Author");
@@ -126,7 +123,6 @@ class BookstoreWebControllerIT {
         book.setAvailable(true);
         book = bookRepository.save(book);
 
-        // When/Then
         mockMvc.perform(get("/books/" + book.getId() + "/edit"))
             .andExpect(status().isOk())
             .andExpect(view().name("books/edit"))
@@ -136,7 +132,6 @@ class BookstoreWebControllerIT {
 
     @Test
     void testUpdateBook() throws Exception {
-        // Given
         Book book = new Book();
         book.setTitle("Original Title");
         book.setAuthor("Original Author");
@@ -145,7 +140,6 @@ class BookstoreWebControllerIT {
         book.setAvailable(false);
         book = bookRepository.save(book);
 
-        // When/Then
         mockMvc.perform(post("/books/" + book.getId())
                 .param("_method", "put")
                 .param("title", "Updated Title")
@@ -156,7 +150,6 @@ class BookstoreWebControllerIT {
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/books"));
 
-        // Verify
         Book updated = bookRepository.findById(book.getId()).orElseThrow();
         assertThat(updated.getTitle()).isEqualTo("Updated Title");
         assertThat(updated.getAuthor()).isEqualTo("Updated Author");
@@ -167,7 +160,6 @@ class BookstoreWebControllerIT {
 
     @Test
     void testDeleteBook() throws Exception {
-        // Given
         Book book = new Book();
         book.setTitle("Delete Me");
         book.setAuthor("Delete Author");
@@ -177,12 +169,10 @@ class BookstoreWebControllerIT {
         book = bookRepository.save(book);
         Long bookId = book.getId();
 
-        // When/Then
         mockMvc.perform(post("/books/" + bookId + "/delete"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/books"));
 
-        // Verify
         assertThat(bookRepository.findById(bookId)).isEmpty();
     }
 }

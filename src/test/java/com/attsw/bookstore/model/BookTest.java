@@ -6,6 +6,9 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Unit tests for {@link Book}.
+ */
 class BookTest {
 
     @Test

@@ -18,6 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.repository.BookRepository;
 
+/**
+ * Unit tests for {@link BookServiceImpl}.
+ */
 @ExtendWith(MockitoExtension.class)
 class BookServiceTest {
 

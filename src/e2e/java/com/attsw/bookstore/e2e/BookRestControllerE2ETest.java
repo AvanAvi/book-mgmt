@@ -9,8 +9,10 @@ import org.junit.jupiter.api.Test;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
-
-class BookRestControllerE2ETest { // NOSONAR
+/**
+ * End-to-end tests for Book REST API endpoints.
+ */
+class BookRestControllerE2ETest { 
 
 	private static int port = Integer.parseInt(System.getProperty("server.port", "9090"));
 
@@ -20,6 +22,9 @@ class BookRestControllerE2ETest { // NOSONAR
 		RestAssured.baseURI = "http://localhost";
 	}
 
+	/**
+	 * Tests retrieving all books from the API.
+	 */
 	@Test
 	void testGetAllBooks() {
 		given()
@@ -31,9 +36,12 @@ class BookRestControllerE2ETest { // NOSONAR
 			.body("$", isA(java.util.List.class));
 	}
 
+	/**
+	 * Tests creating a book and retrieving it by ID.
+	 */
 	@Test
 	void testCreateAndRetrieveBook() {
-		// First create a category
+		// Create a category
 		Integer categoryId = given()
 			.contentType(ContentType.JSON)
 			.body("{\"name\":\"E2E Test Category\"}")
@@ -43,7 +51,7 @@ class BookRestControllerE2ETest { // NOSONAR
 			.statusCode(201)
 			.extract().path("id");
 
-		// Create a book with that category
+		// Create a book
 		String bookJson = String.format(
 			"{\"title\":\"E2E Test Book\"," +
 			"\"author\":\"E2E Author\"," +
@@ -68,7 +76,7 @@ class BookRestControllerE2ETest { // NOSONAR
 			.body("category.id", equalTo(categoryId))
 			.extract().path("id");
 
-		// Verify book can be retrieved
+		// Verify retrieval
 		given()
 			.contentType(ContentType.JSON)
 		.when()
@@ -82,6 +90,9 @@ class BookRestControllerE2ETest { // NOSONAR
 			.body("available", equalTo(true));
 	}
 
+	/**
+	 * Tests updating an existing book.
+	 */
 	@Test
 	void testUpdateBook() {
 		// Create category
@@ -138,6 +149,9 @@ class BookRestControllerE2ETest { // NOSONAR
 			.body("available", equalTo(true));
 	}
 
+	/**
+	 * Tests deleting a book and verifying it no longer exists.
+	 */
 	@Test
 	void testDeleteBook() {
 		// Create category

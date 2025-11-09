@@ -9,6 +9,9 @@ import java.util.List;
 import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.service.BookService;
 
+/**
+ * REST controller for book resources.
+ */
 @RestController
 @RequestMapping("/api/books")
 public class BookRestController {

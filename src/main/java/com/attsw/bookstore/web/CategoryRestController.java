@@ -1,19 +1,18 @@
 package com.attsw.bookstore.web;
-import java.util.Map;       
-import java.util.HashMap;
 
+import java.util.Map;
+import java.util.HashMap;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
-
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import java.util.List;
-
 import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.service.CategoryService;
 
+/**
+ * REST controller for category resources.
+ */
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryRestController {
@@ -45,7 +44,6 @@ public class CategoryRestController {
         return category;
     }
     
-    
     @PutMapping("/{id}")
     public Category update(@PathVariable Long id, @RequestBody Category category) {
         category.setId(id);
@@ -58,8 +56,8 @@ public class CategoryRestController {
             Map<String, String> body = new HashMap<>();
             body.put("message", "Category cannot be deleted while books exist");
             return ResponseEntity.badRequest().body(body);
-    }
+        }
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
-}
+    }
 }

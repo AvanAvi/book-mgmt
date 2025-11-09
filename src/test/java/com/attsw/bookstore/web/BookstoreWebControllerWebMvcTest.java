@@ -1,4 +1,5 @@
 package com.attsw.bookstore.web;
+
 import java.time.LocalDate;
 import com.attsw.bookstore.service.CategoryService;
 import com.attsw.bookstore.service.BookService;
@@ -19,6 +20,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.attsw.bookstore.model.Book;
 
+/**
+ * MVC slice tests for book web views.
+ */
 @WebMvcTest(BookstoreWebController.class)
 class BookstoreWebControllerWebMvcTest {
 

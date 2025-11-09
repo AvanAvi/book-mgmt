@@ -1,6 +1,5 @@
 package com.attsw.bookstore.web;
 
-
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
@@ -20,6 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.service.CategoryService;
 
+/**
+ * MVC slice tests for {@link CategoryRestController}.
+ */
 @WebMvcTest(CategoryRestController.class)
 class CategoryRestControllerWebMvcTest {
 

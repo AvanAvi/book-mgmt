@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.repository.BookRepository;
 
+/**
+ * Service implementation for Book operations.
+ */
 @Service
 public class BookServiceImpl implements BookService {
 

@@ -1,6 +1,6 @@
 package com.attsw.bookstore.web;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 import com.attsw.bookstore.service.CategoryService;
 import static org.mockito.Mockito.*;
@@ -18,6 +18,9 @@ import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.service.BookService;
 import java.util.Collections;
 
+/**
+ * Unit tests for {@link BookstoreWebController}.
+ */
 @ExtendWith(MockitoExtension.class)
 class BookstoreWebControllerTest {
 

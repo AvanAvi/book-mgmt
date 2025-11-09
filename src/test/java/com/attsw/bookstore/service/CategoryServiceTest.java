@@ -17,6 +17,9 @@ import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.repository.CategoryRepository;
 
+/**
+ * Unit tests for {@link CategoryServiceImpl}.
+ */
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
 

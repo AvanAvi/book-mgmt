@@ -10,8 +10,8 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
 /**
- * End-to-End test for CategoryRestController.
- * Assumes Spring Boot application is ALREADY RUNNING.
+ * End-to-end tests for Category REST API endpoints.
+ * Requires the Spring Boot application to be running.
  */
 class CategoryRestControllerE2ETest { 
 
@@ -23,6 +23,9 @@ class CategoryRestControllerE2ETest {
 		RestAssured.baseURI = "http://localhost";
 	}
 
+	/**
+	 * Tests retrieving all categories from the API.
+	 */
 	@Test
 	void testGetAllCategories() {
 		given()
@@ -34,6 +37,9 @@ class CategoryRestControllerE2ETest {
 			.body("$", isA(java.util.List.class));
 	}
 
+	/**
+	 * Tests creating a category and retrieving it by ID.
+	 */
 	@Test
 	void testCreateAndRetrieveCategory() {
 		// Create category
@@ -47,7 +53,7 @@ class CategoryRestControllerE2ETest {
 			.body("name", equalTo("E2E Category Test"))
 			.extract().path("id");
 
-		// Retrieve category
+		// Verify retrieval
 		given()
 			.contentType(ContentType.JSON)
 		.when()
@@ -58,6 +64,9 @@ class CategoryRestControllerE2ETest {
 			.body("name", equalTo("E2E Category Test"));
 	}
 
+	/**
+	 * Tests updating an existing category.
+	 */
 	@Test
 	void testUpdateCategory() {
 		// Create category
@@ -81,6 +90,9 @@ class CategoryRestControllerE2ETest {
 			.body("name", equalTo("Updated Category Name"));
 	}
 
+	/**
+	 * Tests deleting a category and verifying it no longer exists.
+	 */
 	@Test
 	void testDeleteCategory() {
 		// Create category
@@ -108,6 +120,9 @@ class CategoryRestControllerE2ETest {
 			.statusCode(404);
 	}
 
+	/**
+	 * Tests that deleting a category with associated books fails with error.
+	 */
 	@Test
 	void testDeleteCategoryWithBooks_shouldFail() {
 		// Create category
@@ -120,12 +135,11 @@ class CategoryRestControllerE2ETest {
 			.statusCode(201)
 			.extract().path("id");
 
-		// Create book in this category
+		// Create book in category
 		String bookJson = String.format(
 			"{\"title\":\"Book In Category\",\"category\":{\"id\":%d}}",
 			categoryId
 		);
-
 		given()
 			.contentType(ContentType.JSON)
 			.body(bookJson)
@@ -134,7 +148,7 @@ class CategoryRestControllerE2ETest {
 		.then()
 			.statusCode(201);
 
-		// Try to delete category - should fail
+		// Verify deletion fails
 		given()
 		.when()
 			.delete("/api/categories/" + categoryId)

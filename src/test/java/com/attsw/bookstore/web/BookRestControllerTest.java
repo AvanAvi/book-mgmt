@@ -1,6 +1,6 @@
 package com.attsw.bookstore.web;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,6 +17,9 @@ import org.springframework.http.HttpStatus;
 import com.attsw.bookstore.model.Book;
 import com.attsw.bookstore.service.BookService;
 
+/**
+ * Unit tests for {@link BookRestController}.
+ */
 @ExtendWith(MockitoExtension.class)
 class BookRestControllerTest {
 

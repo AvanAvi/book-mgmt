@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Unit tests for {@link Category}.
+ */
 class CategoryTest {
 
     @Test
@@ -42,10 +45,10 @@ class CategoryTest {
         book.setTitle("Refactoring");
 
         category.addBook(book);
-        assertEquals(category, book.getCategory());   // precondition
+        assertEquals(category, book.getCategory());
 
-        category.removeBook(book);                    // new behaviour
-        assertNull(book.getCategory());               // expectation
+        category.removeBook(book);
+        assertNull(book.getCategory());
     }
     
     @Test
@@ -66,7 +69,6 @@ class CategoryTest {
                      () -> category.removeBook(null));
     }
     
-    
     @Test
     void addBookShouldRejectDuplicate() {
         Category category = new Category();
@@ -75,9 +77,9 @@ class CategoryTest {
         Book book = new Book();
         book.setTitle("Refactoring");
 
-        category.addBook(book);               // first add – OK
+        category.addBook(book);
         assertThrows(IllegalArgumentException.class,
-                     () -> category.addBook(book)); // duplicate 
+                     () -> category.addBook(book));
     }
     
     @Test
@@ -89,6 +91,6 @@ class CategoryTest {
         book.setTitle("Refactoring");
 
         assertThrows(IllegalArgumentException.class,
-                     () -> category.removeBook(book)); // book never added
+                     () -> category.removeBook(book));
     }
 }

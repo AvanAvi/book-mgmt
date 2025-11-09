@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+/**
+ * JPA entity representing a book.
+ */
 @Entity
 public class Book {
 
@@ -20,14 +23,14 @@ public class Book {
     @ManyToOne
     @JsonIgnoreProperties("books")
     private Category category;
-    
-    
-    
-    public Book() {
-    	// Default constructor required by JPA for entity instantiation
-    }                      
 
-    
+    public Book() {
+        // Default constructor required by JPA for entity instantiation
+    }
+
+    /**
+     * Factory method that creates a Book instance with the given title.
+     */
     public static Book withTitle(String title) {
         Book b = new Book();
         b.setTitle(title);
@@ -35,8 +38,7 @@ public class Book {
     }
 
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; } 
-    
+    public void setId(Long id) { this.id = id; }
 
     /* ----------  setters  ---------- */
     public void setTitle(String title)       { this.title = title; }

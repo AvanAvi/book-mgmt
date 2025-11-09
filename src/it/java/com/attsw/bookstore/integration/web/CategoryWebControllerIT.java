@@ -1,4 +1,5 @@
 package com.attsw.bookstore.integration.web;
+
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +29,9 @@ import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.repository.BookRepository;
 import com.attsw.bookstore.repository.CategoryRepository;
 
+/**
+ * Integration tests for category web flows using Testcontainers MySQL.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
@@ -59,12 +63,10 @@ class CategoryWebControllerIT {
 
     @Test
     void testGetAllCategories() throws Exception {
-        // Given
         Category category = new Category();
         category.setName("Test Category");
         categoryRepository.save(category);
 
-        // When/Then
         mockMvc.perform(get("/categories"))
             .andExpect(status().isOk())
             .andExpect(view().name("categories/list"))
@@ -88,19 +90,16 @@ class CategoryWebControllerIT {
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/categories"));
 
-        // Verify
         assertThat(categoryRepository.findAll()).hasSize(1);
         assertThat(categoryRepository.findAll().get(0).getName()).isEqualTo("New Category");
     }
 
     @Test
     void testShowEditCategoryForm() throws Exception {
-        // Given
         Category category = new Category();
         category.setName("Edit Test");
         category = categoryRepository.save(category);
 
-        // When/Then
         mockMvc.perform(get("/categories/" + category.getId() + "/edit"))
             .andExpect(status().isOk())
             .andExpect(view().name("categories/edit"))
@@ -109,42 +108,35 @@ class CategoryWebControllerIT {
 
     @Test
     void testUpdateCategory() throws Exception {
-        // Given
         Category category = new Category();
         category.setName("Original Name");
         category = categoryRepository.save(category);
 
-        // When/Then
         mockMvc.perform(post("/categories/" + category.getId())
                 .param("name", "Updated Name"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/categories"));
 
-        // Verify
         Category updated = categoryRepository.findById(category.getId()).orElseThrow();
         assertThat(updated.getName()).isEqualTo("Updated Name");
     }
 
     @Test
     void testDeleteCategoryWithoutBooks() throws Exception {
-        // Given
         Category category = new Category();
         category.setName("Delete Me");
         category = categoryRepository.save(category);
         Long categoryId = category.getId();
 
-        // When/Then
         mockMvc.perform(post("/categories/" + categoryId + "/delete"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/categories"));
 
-        // Verify
         assertThat(categoryRepository.findById(categoryId)).isEmpty();
     }
 
     @Test
     void testDeleteCategoryWithBooks_shouldFail() throws Exception {
-        // Given
         Category category = new Category();
         category.setName("Has Books");
         category = categoryRepository.save(category);
@@ -162,13 +154,11 @@ class CategoryWebControllerIT {
         entityManager.flush();
         entityManager.clear();
 
-        // When/Then
         mockMvc.perform(post("/categories/" + category.getId() + "/delete"))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/categories"))
             .andExpect(flash().attributeExists("error"));
 
-        // Verify category still exists
         assertThat(categoryRepository.findById(category.getId())).isPresent();
     }
 }

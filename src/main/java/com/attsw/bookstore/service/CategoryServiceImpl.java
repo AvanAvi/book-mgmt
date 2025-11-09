@@ -6,6 +6,9 @@ import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.repository.CategoryRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service implementation for Category operations.
+ */
 @Service
 public class CategoryServiceImpl implements CategoryService {
 

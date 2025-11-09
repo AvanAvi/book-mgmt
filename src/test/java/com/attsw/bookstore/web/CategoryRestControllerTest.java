@@ -1,4 +1,5 @@
 package com.attsw.bookstore.web;
+
 import org.springframework.web.server.ResponseStatusException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -16,6 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.service.CategoryService;
 
+/**
+ * Unit tests for {@link CategoryRestController}.
+ */
 @ExtendWith(MockitoExtension.class)
 class CategoryRestControllerTest {
 
@@ -109,7 +113,4 @@ class CategoryRestControllerTest {
         assertTrue(exception.getReason().contains("not found"));
         verify(categoryService).getCategoryById(999L);
     }
-    
-    
-    
 }

@@ -11,6 +11,9 @@ import com.attsw.bookstore.service.CategoryService;
 import com.attsw.bookstore.service.BookService;
 import org.springframework.web.bind.annotation.PathVariable;
 
+/**
+ * Web controller for category-related Thymeleaf views.
+ */
 @Controller
 public class CategoryWebController {
 

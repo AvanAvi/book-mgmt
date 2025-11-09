@@ -21,7 +21,9 @@ import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.service.BookService;
 import com.attsw.bookstore.service.CategoryService;
 
-
+/**
+ * HTML-level tests for category web flows using HtmlUnit.
+ */
 @WebMvcTest(controllers = CategoryWebController.class)
 class CategoryWebControllerHtmlUnitTest {
 
@@ -53,8 +55,7 @@ class CategoryWebControllerHtmlUnitTest {
         HtmlPage page = webClient.getPage("/categories");
 
         HtmlElement categoriesList = page.getHtmlElementById("categoriesTable");
-        assertThat(categoriesList)
-            .isNotNull();
+        assertThat(categoriesList).isNotNull();
         assertThat(categoriesList.getElementsByTagName("li")).isEmpty();
     }
 
@@ -73,20 +74,16 @@ class CategoryWebControllerHtmlUnitTest {
         HtmlPage page = webClient.getPage("/categories");
 
         HtmlElement categoriesList = page.getHtmlElementById("categoriesTable");
-        assertThat(categoriesList)
-            .isNotNull();
+        assertThat(categoriesList).isNotNull();
 
         String pageText = removeWindowsCR(page.asNormalizedText());
-        assertThat(pageText)
-            .contains("Fiction", "Science");
+        assertThat(pageText).contains("Fiction", "Science");
 
         HtmlAnchor editLink1 = page.getAnchorByHref("/categories/1/edit");
-        assertThat(editLink1)
-            .isNotNull();
+        assertThat(editLink1).isNotNull();
         
         HtmlAnchor editLink2 = page.getAnchorByHref("/categories/2/edit");
-        assertThat(editLink2)
-            .isNotNull();
+        assertThat(editLink2).isNotNull();
     }
 
     @Test
@@ -102,8 +99,7 @@ class CategoryWebControllerHtmlUnitTest {
         assertThat(page.getTitleText()).isEqualTo("Edit Category");
 
         HtmlForm form = page.getForms().get(0);
-        assertThat(form)
-            .isNotNull();
+        assertThat(form).isNotNull();
 
         String pageText = removeWindowsCR(page.asNormalizedText());
         assertThat(pageText).contains("Original Name");
@@ -111,8 +107,7 @@ class CategoryWebControllerHtmlUnitTest {
         HtmlInput nameInput = form.getInputByName("name");
         nameInput.setValue("Modified Name");
         
-        assertThat(form.getButtonByName("btn_submit"))
-            .isNotNull();
+        assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
 
     @Test
@@ -122,14 +117,12 @@ class CategoryWebControllerHtmlUnitTest {
         assertThat(page.getTitleText()).isEqualTo("New Category");
 
         HtmlForm form = page.getForms().get(0);
-        assertThat(form)
-            .isNotNull();
+        assertThat(form).isNotNull();
 
         HtmlInput nameInput = form.getInputByName("name");
         nameInput.setValue("New Category Name");
         
-        assertThat(form.getButtonByName("btn_submit"))
-            .isNotNull();
+        assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
 
     @Test
@@ -157,20 +150,16 @@ class CategoryWebControllerHtmlUnitTest {
         HtmlPage page = webClient.getPage("/categories");
 
         HtmlElement categoriesList = page.getHtmlElementById("categoriesTable");
-        assertThat(categoriesList)
-            .isNotNull();
+        assertThat(categoriesList).isNotNull();
 
         String listText = removeWindowsCR(categoriesList.asNormalizedText());
-        assertThat(listText)
-            .contains("Category 1", "Category 2", "Edit");
+        assertThat(listText).contains("Category 1", "Category 2", "Edit");
 
         HtmlAnchor editLink1 = page.getAnchorByHref("/categories/1/edit");
-        assertThat(editLink1)
-            .isNotNull();
+        assertThat(editLink1).isNotNull();
         
         HtmlAnchor editLink2 = page.getAnchorByHref("/categories/2/edit");
-        assertThat(editLink2)
-            .isNotNull();
+        assertThat(editLink2).isNotNull();
     }
 
     @Test
@@ -180,11 +169,9 @@ class CategoryWebControllerHtmlUnitTest {
         HtmlForm form = page.getForms().get(0);
 
         HtmlInput nameInput = form.getInputByName("name");
-        assertThat(nameInput)
-            .isNotNull();
+        assertThat(nameInput).isNotNull();
         
-        assertThat(form.getButtonByName("btn_submit"))
-            .isNotNull();
+        assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
 
     @Test
@@ -200,10 +187,8 @@ class CategoryWebControllerHtmlUnitTest {
         HtmlForm form = page.getForms().get(0);
         
         HtmlInput nameInput = form.getInputByName("name");
-        assertThat(nameInput)
-            .isNotNull();
+        assertThat(nameInput).isNotNull();
         
-        assertThat(form.getButtonByName("btn_submit"))
-            .isNotNull();
+        assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
 }

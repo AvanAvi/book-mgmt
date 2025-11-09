@@ -15,7 +15,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.attsw.bookstore.model.Category;
 
-
+/**
+ * Integration tests for {@link CategoryRepository} using Testcontainers MySQL.
+ */
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -105,7 +107,7 @@ class CategoryRepositoryIT {
 		entityManager.refresh(category);             
 
 		assertThat(category.getName()).isEqualTo("Updated Name"); 
-}
+	}
 
 	@Test
 	void testDelete() {

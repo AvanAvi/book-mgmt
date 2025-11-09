@@ -20,6 +20,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.attsw.bookstore.model.Category;
 
+/**
+ * MVC slice tests for category web views.
+ */
 @WebMvcTest(CategoryWebController.class)
 class CategoryWebControllerWebMvcTest {
 

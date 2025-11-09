@@ -1,4 +1,5 @@
 package com.attsw.bookstore.integration.rest;
+
 import java.time.LocalDate;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +25,9 @@ import com.attsw.bookstore.repository.CategoryRepository;
 
 import io.restassured.RestAssured;
 
-
+/**
+ * Integration tests for {@link BookRestController} using Testcontainers MySQL.
+ */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Testcontainers
 class BookRestControllerIT {

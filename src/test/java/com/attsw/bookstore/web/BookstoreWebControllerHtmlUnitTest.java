@@ -1,9 +1,8 @@
 package com.attsw.bookstore.web;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -24,7 +23,9 @@ import com.attsw.bookstore.model.Category;
 import com.attsw.bookstore.service.BookService;
 import com.attsw.bookstore.service.CategoryService;
 
-
+/**
+ * HTML-level tests for book web flows using HtmlUnit.
+ */
 @WebMvcTest(controllers = BookstoreWebController.class)
 class BookstoreWebControllerHtmlUnitTest {
 
@@ -37,12 +38,10 @@ class BookstoreWebControllerHtmlUnitTest {
     @MockitoBean
     private CategoryService categoryService;
 
-    
     private String removeWindowsCR(String s) {
         return s.replace("\r", "");
     }
 
-    // ========== TEST 1: Page Title ==========
     @Test
     void testBooksListPageTitle() throws Exception {
         when(bookService.getAllBooks()).thenReturn(Collections.emptyList());
@@ -51,7 +50,6 @@ class BookstoreWebControllerHtmlUnitTest {
         assertThat(page.getTitleText()).isEqualTo("Book List");
     }
 
-    // ========== TEST 2: Empty List Message ==========
     @Test
     void testBooksListPageWithNoBooks() throws Exception {
         when(bookService.getAllBooks()).thenReturn(Collections.emptyList());
@@ -63,22 +61,21 @@ class BookstoreWebControllerHtmlUnitTest {
         assertThat(booksList.getElementsByTagName("li")).isEmpty();
     }
 
-    // ========== TEST 3: List with Items in Table ==========
     @Test
     void testBooksListPageWithBooks_ShouldShowThemInList() throws Exception {
-    	Book book1 = Book.withTitle("Clean Code");
-    	book1.setId(1L);
-    	book1.setAuthor("Robert Martin");
-    	book1.setIsbn("9780132350884");
-    	book1.setPublishedDate(LocalDate.of(2008, 8, 1));
-    	book1.setAvailable(true);
+        Book book1 = Book.withTitle("Clean Code");
+        book1.setId(1L);
+        book1.setAuthor("Robert Martin");
+        book1.setIsbn("9780132350884");
+        book1.setPublishedDate(LocalDate.of(2008, 8, 1));
+        book1.setAvailable(true);
 
-    	Book book2 = Book.withTitle("Refactoring");
-    	book2.setId(2L);
-    	book2.setAuthor("Martin Fowler");
-    	book2.setIsbn("9780201485677");
-    	book2.setPublishedDate(LocalDate.of(1999, 7, 8));
-    	book2.setAvailable(true);
+        Book book2 = Book.withTitle("Refactoring");
+        book2.setId(2L);
+        book2.setAuthor("Martin Fowler");
+        book2.setIsbn("9780201485677");
+        book2.setPublishedDate(LocalDate.of(1999, 7, 8));
+        book2.setAvailable(true);
 
         when(bookService.getAllBooks()).thenReturn(Arrays.asList(book1, book2));
 
@@ -99,7 +96,6 @@ class BookstoreWebControllerHtmlUnitTest {
         assertThat(editLink2).isNotNull();
     }
 
- // ========== TEST 4: Edit Existing Item with Form ==========
     @Test
     void testEditExistingBook() throws Exception {
         Category category = new Category();
@@ -127,7 +123,6 @@ class BookstoreWebControllerHtmlUnitTest {
         String pageText = removeWindowsCR(page.asNormalizedText());
         assertThat(pageText).contains("Original Title", "Original Author", "1234567890");
 
-        // Verify form can be filled
         HtmlInput titleInput = form.getInputByName("title");
         titleInput.setValue("Modified Title");
         
@@ -137,18 +132,13 @@ class BookstoreWebControllerHtmlUnitTest {
         HtmlInput isbnInput = form.getInputByName("isbn");
         isbnInput.setValue("0987654321");
         
-        // Verify the category dropdown exists with options (1 category + 1 "No Category" option = 2 total)
         HtmlSelect categorySelect = form.getSelectByName("category");
-        assertThat(categorySelect)
-            .isNotNull();
+        assertThat(categorySelect).isNotNull();
         assertThat(categorySelect.getOptions()).hasSize(2);
         
-        // Verify submit button exists
         assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
      
-
- // ========== TEST 5: Create New Item with Form ==========
     @Test
     void testCreateNewBook() throws Exception {
         Category category1 = new Category();
@@ -168,7 +158,6 @@ class BookstoreWebControllerHtmlUnitTest {
         HtmlForm form = page.getForms().get(0);
         assertThat(form).isNotNull();
 
-        // Verify form can be filled
         HtmlInput titleInput = form.getInputByName("title");
         titleInput.setValue("New Book Title");
         
@@ -178,17 +167,13 @@ class BookstoreWebControllerHtmlUnitTest {
         HtmlInput isbnInput = form.getInputByName("isbn");
         isbnInput.setValue("1111111111");
         
-        // Verify the category dropdown exists with options (2 categories + 1 "No Category" option = 3 total)
         HtmlSelect categorySelect = form.getSelectByName("category");
-        assertThat(categorySelect)
-            .isNotNull();
+        assertThat(categorySelect).isNotNull();
         assertThat(categorySelect.getOptions()).hasSize(3);
         
-        // Verify submit button exists
         assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
 
-    // ========== TEST 6: Link to Create New Item ==========
     @Test
     void testBooksListPage_ShouldProvideALinkForCreatingNewBook() throws Exception {
         when(bookService.getAllBooks()).thenReturn(Collections.emptyList());
@@ -199,22 +184,21 @@ class BookstoreWebControllerHtmlUnitTest {
         assertThat(newBookLink.getHrefAttribute()).isEqualTo("/books/new");
     }
 
-    // ========== TEST 7: Edit Links in Table ==========
     @Test
     void testBooksListPageWithBooks_ShouldShowEditLinks() throws Exception {
-    	Book book1 = Book.withTitle("Book 1");
-    	book1.setId(1L);
-    	book1.setAuthor("Author 1");
-    	book1.setIsbn("1111111111");
-    	book1.setPublishedDate(LocalDate.of(2024, 1, 1));
-    	book1.setAvailable(true);
+        Book book1 = Book.withTitle("Book 1");
+        book1.setId(1L);
+        book1.setAuthor("Author 1");
+        book1.setIsbn("1111111111");
+        book1.setPublishedDate(LocalDate.of(2024, 1, 1));
+        book1.setAvailable(true);
 
-    	Book book2 = Book.withTitle("Book 2");
-    	book2.setId(2L);
-    	book2.setAuthor("Author 2");
-    	book2.setIsbn("2222222222");
-    	book2.setPublishedDate(LocalDate.of(2024, 2, 1));
-    	book2.setAvailable(true);
+        Book book2 = Book.withTitle("Book 2");
+        book2.setId(2L);
+        book2.setAuthor("Author 2");
+        book2.setIsbn("2222222222");
+        book2.setPublishedDate(LocalDate.of(2024, 2, 1));
+        book2.setAvailable(true);
 
         when(bookService.getAllBooks()).thenReturn(Arrays.asList(book1, book2));
 
@@ -232,7 +216,6 @@ class BookstoreWebControllerHtmlUnitTest {
         HtmlAnchor editLink2 = page.getAnchorByHref("/books/2/edit");
         assertThat(editLink2).isNotNull();
     }
-
 
     @Test
     void testNewBookFormHasAllRequiredFields() throws Exception {
@@ -260,14 +243,11 @@ class BookstoreWebControllerHtmlUnitTest {
         assertThat(isbnInput).isNotNull();
         
         HtmlSelect categorySelect = form.getSelectByName("category");
-        assertThat(categorySelect)
-            .isNotNull();
-        // Verify dropdown has options (2 categories + 1 "No Category" = 3 total)
+        assertThat(categorySelect).isNotNull();
         assertThat(categorySelect.getOptions()).hasSize(3);
         
         assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
-
  
     @Test
     void testEditBookFormHasAllRequiredFields() throws Exception {
@@ -291,8 +271,7 @@ class BookstoreWebControllerHtmlUnitTest {
         HtmlForm form = page.getForms().get(0);
 
         HtmlInput methodInput = form.getInputByName("_method");
-        assertThat(methodInput)
-            .isNotNull();
+        assertThat(methodInput).isNotNull();
         assertThat(methodInput.getValue()).isEqualTo("put");
         
         HtmlInput titleInput = form.getInputByName("title");
@@ -304,8 +283,7 @@ class BookstoreWebControllerHtmlUnitTest {
         HtmlInput isbnInput = form.getInputByName("isbn");
         assertThat(isbnInput).isNotNull();
         
-        assertThat(form.getSelectByName("category"))
-            .isNotNull();
+        assertThat(form.getSelectByName("category")).isNotNull();
         assertThat(form.getButtonByName("btn_submit")).isNotNull();
     }
 }
