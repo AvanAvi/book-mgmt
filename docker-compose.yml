@@ -8,6 +8,8 @@ services:
       MYSQL_DATABASE: bookstore
       MYSQL_USER: bookstore
       MYSQL_PASSWORD: bookstore
+    tmpfs:
+      - /var/lib/mysql   
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "bookstore", "-pbookstore"]
       timeout: 10s
