@@ -172,8 +172,9 @@ Expected: MySQL container running on port 3308
 
 **Step 3: Start Spring Boot**
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.devtools.restart.enabled=false
 ```
+The local profile loads `application-local.properties` with MySQL container settings. DevTools auto-restart is disabled to prevent interruption during test execution.
 Wait for: "Started BookstoreManagementTddApplication" message
 
 **Step 4: Run E2E tests in Eclipse**
